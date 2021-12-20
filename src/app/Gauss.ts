@@ -22,28 +22,26 @@ export class Gauss {
     return matrix;
   }
 
-  gauss(fromRow:number,fromCol:number,matrix:Matrix,b:Matrix):Matrix{
+  gauss(matrix:Matrix,b:Matrix):Matrix{
     let factor;
     console.log(matrix.print())
     for (let i=0;i<matrix.getCols()-1;i++){
-      matrix=this.partialPivoting(fromRow,fromCol,matrix,b)
+      matrix=this.partialPivoting(i,i,matrix,b)
       console.log(matrix.print()+b.print())
 
-      for (let j=fromRow+1;j<matrix.getCols();j++){
+      for (let j=i+1;j<matrix.getCols();j++){
 
-        factor=matrix.getElement(j,fromCol)/matrix.getElement(fromRow,fromCol);
+        factor=matrix.getElement(j,i)/matrix.getElement(i,i);
+        console.log("factor = "+factor)
+        console.log(-Math.round(factor*10000)/10000+" * "+ "Row "+ (i+1)+" +"+" Row "+(j+1) +" store in Row "+(j+1))
+        for (let k=i;k<matrix.getCols();k++){
 
-        for (let k=fromCol;k<matrix.getCols();k++){
-
-          matrix.setElement(j,k,matrix.getElement(j,k)-factor*matrix.getElement(fromRow,k));
+          matrix.setElement(j,k,matrix.getElement(j,k)-factor*matrix.getElement(i,k));
 
         }
-        b.setElement(j,0,(b.getElement(j,0)-factor*b.getElement(fromRow,0)));
+        b.setElement(j,0,(b.getElement(j,0)-factor*b.getElement(i,0)));
         console.log(matrix.print() + b.print())
       }
-        fromRow++;
-        fromCol++;
-      
 
     }
     console.log(matrix.print() + b.print())
@@ -53,7 +51,7 @@ export class Gauss {
     let x=new Matrix(matrix.getRows(),1);
 
     x.setElement(1,1,5)
-    matrix=this.gauss(0,0,matrix,b)
+    matrix=this.gauss(matrix,b)
     console.log("after elimination \n"+matrix.print(),b.print())
 
     for(let i =matrix.getRows()-1;i>=0;i--){
