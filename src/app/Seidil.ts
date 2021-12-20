@@ -33,9 +33,9 @@ export class Seidil {
         const guess = this.intialGuess
         for (let k = 0; k < this.imax; k++) {
 
-            for (let i = 0; i < this.A.getRows(); i++) {
+            for (let i = 0; i < this.n; i++) {
                 x[i] = this.B.getElement(i, 0)
-                for (let j = 0; j < this.A.getCols(); j++) {
+                for (let j = 0; j < this.n; j++) {
                     if (i != j) {
                         x[i] -= (this.A.getElement(i, j) * guess[j])
                     }
@@ -49,7 +49,7 @@ export class Seidil {
             for (let i = 1; i < ea.length; i++)
                 if (ea[i] > max) max = ea[i]
 
-            if (max < this.es) break
+            if (max <= this.es) break
 
         }
         return x
