@@ -34,6 +34,31 @@ export class Matrix {
     getCols(): number {
         return this.cols;
     }
+    getData(): number[][] {
+        return this.data;
+    }
+    isPosDef(){
+        if(!this.isSym()){
+            return false;
+        }
+        for(var i=0;i<this.rows;i++){
+            if(this.getElement(i,i)<0){
+                return false;
+            }
+        }
+        return true;
+    }
+    isSym(){
+        if(this.rows!=this.cols){return false;}
+        for(var i=0;i<this.rows;i++){
+            for(var j=0;j<i;j++){
+                if(this.getElement(i,j)!=this.getElement(j,i)){
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
     add(m: Matrix): Matrix {
         if (this.rows !== m.rows || this.cols !== m.cols) {
             throw new Error("Matrix sizes do not match");
@@ -111,6 +136,15 @@ export class Matrix {
             result += "\n";
         }
         return result;
+    }
+    transpose():Matrix{
+        let result= new Matrix(this.cols,this.rows);
+            for (let i = 0; i < this.rows; i++) {
+                for (let j = 0; j < this.cols; j++) {
+                    result.data[j][i] = this.data[i][j];
+                }
+            }
+            return result;
     }
     clone(): Matrix {
         let result = new Matrix(this.rows, this.cols);
