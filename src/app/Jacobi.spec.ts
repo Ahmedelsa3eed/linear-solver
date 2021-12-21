@@ -27,9 +27,9 @@ describe('Jacobi', () => {
         const jacobi = new Jacobi(matrixA, matrixB, intialGuess, 0.1, 20)
         const x = jacobi.jacobi()
         console.log(x)
-        expect(x[0]).toBeCloseTo(1.014, 3)
-        expect(x[1]).toBeCloseTo(2.020, 3)
-        expect(x[2]).toBeCloseTo(2.996, 3)
+        expect(x.getElement(matrixA.getRows(), 0)).toBeCloseTo(1.039, 2)
+        expect(x.getElement(matrixA.getRows(), 1)).toBeCloseTo(1.9375, 2)
+        expect(x.getElement(matrixA.getRows(), 2)).toBeCloseTo(3.070, 2)
     });
 
 

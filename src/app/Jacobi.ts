@@ -26,34 +26,51 @@ export class Jacobi {
         this.n = M.getRows();
     }
 
-    jacobi(): number[] {
-        const x = []
+    jacobi(): Matrix {
+        console.log(this.showTheFormula())
+        let x: number[][] = []
         const ea = []
         let guess = this.intialGuess
         for (let k = 0; k < this.imax; k++) {
-
+            x[k] = []
             for (let i = 0; i < this.n; i++) {
-                x[i] = this.B.getElement(i, 0)
+                x[k][i] = this.B.getElement(i, 0)
                 for (let j = 0; j < this.n; j++) {
                     if (i != j) {
-                        x[i] -= (this.A.getElement(i, j) * guess[j])
+                        x[k][i] -= (this.A.getElement(i, j) * guess[j])
                     }
                 }
-                x[i] /= this.A.getElement(i, i)
-                ea[i] = Math.abs((x[i] - guess[i]) / x[i])
+                x[k][i] /= this.A.getElement(i, i)
+                ea[i] = Math.abs((x[k][i] - guess[i]) / x[k][i])
             }
 
-            for (let i = 0; i < x.length; i++)
-                guess[i] = x[i]
+            for (let i = 0; i < this.n; i++)
+                guess[i] = x[k][i]
 
             var max = ea[0]
             for (let i = 1; i < ea.length; i++)
                 if (ea[i] > max) max = ea[i]
 
-            if (max <= this.es) break
+            if (max < this.es) break
 
         }
-        return x
+        return Matrix.fromArray(x)
+    }
+
+    showTheFormula(): string[] {
+        const equations: string[] = []
+        for (let i = 0; i < this.n; i++) {
+            let st = ''
+            st += 'x' + (i + 1) + ' = ('
+            st += this.B.getElement(i, 0)
+            for (let j = 0; j < this.n; j++) {
+                if (i != j)
+                    st += '-' + this.A.getElement(i, j) + 'x' + (j + 1)
+            }
+            st += ') / ' + this.A.getElement(i, i)
+            equations[i] = st
+        }
+        return equations
     }
 
 }

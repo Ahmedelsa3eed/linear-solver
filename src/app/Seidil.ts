@@ -27,22 +27,23 @@ export class Seidil {
         this.n = M.getRows();
     }
 
-    gaussSeidil(): number[] {
-        const x = []
+    gaussSeidil(): Matrix {
+        console.log(this.showTheFormula())
+        let x: number[][] = []
         const ea = []
         const guess = this.intialGuess
         for (let k = 0; k < this.imax; k++) {
-
+            x[k] = []
             for (let i = 0; i < this.n; i++) {
-                x[i] = this.B.getElement(i, 0)
+                x[k][i] = this.B.getElement(i, 0)
                 for (let j = 0; j < this.n; j++) {
                     if (i != j) {
-                        x[i] -= (this.A.getElement(i, j) * guess[j])
+                        x[k][i] -= (this.A.getElement(i, j) * guess[j])
                     }
                 }
-                x[i] /= this.A.getElement(i, i)
-                ea[i] = Math.abs((x[i] - guess[i]) / x[i])
-                guess[i] = x[i]
+                x[k][i] /= this.A.getElement(i, i)
+                ea[i] = Math.abs((x[k][i] - guess[i]) / x[k][i])
+                guess[i] = x[k][i]
             }
 
             var max = ea[0]
@@ -52,8 +53,24 @@ export class Seidil {
             if (max <= this.es) break
 
         }
-        return x
 
+        return Matrix.fromArray(x)
+    }
+
+    showTheFormula(): string[] {
+        const equations: string[] = []
+        for (let i = 0; i < this.n; i++) {
+            let st = ''
+            st += 'x' + (i + 1) + ' = ('
+            st += this.B.getElement(i, 0)
+            for (let j = 0; j < this.n; j++) {
+                if (i != j)
+                    st += '-' + this.A.getElement(i, j) + 'x' + (j + 1)
+            }
+            st += ') / ' + this.A.getElement(i, i)
+            equations[i] = st
+        }
+        return equations
     }
 
 }

@@ -26,9 +26,9 @@ describe('Seidil', () => {
 
         const seidel = new Seidil(matrixA, matrixB, intialGuess, 0.1, 20)
         const x = seidel.gaussSeidil()
-        expect(x[0]).toBeCloseTo(1.009, 3)
-        expect(x[1]).toBeCloseTo(1.9995, 3)
-        expect(x[2]).toBeCloseTo(2.996, 3)
+        expect(x.getElement(matrixA.getRows(), 0)).toBeCloseTo(1.009, 1)
+        expect(x.getElement(matrixA.getRows(), 1)).toBeCloseTo(1.9995, 1)
+        expect(x.getElement(matrixA.getRows(), 2)).toBeCloseTo(2.996, 1)
     });
 
 
