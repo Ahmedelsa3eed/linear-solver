@@ -9,14 +9,15 @@ export class Seidil {
     imax!: number
     n!: number; //the number of rows (square matrix)
 
-    constructor(A?: Matrix, B?: Matrix, intialGuess?: number[], es?: number, imax?: number) {
-        if (A && B && intialGuess && es && imax) {
+    constructor(A?: Matrix, B?: Matrix, intialGuess?: number[], es?: number, imax: number = 1000) {
+        if (A && B && intialGuess) {
             this.SetMatrix(A)
             this.B = B.clone()
             this.intialGuess = intialGuess
-            this.es = es
             this.imax = imax
         }
+        this.es = 0
+        if (es) this.es = es
     }
 
     SetMatrix(M: Matrix) {
@@ -50,7 +51,9 @@ export class Seidil {
             for (let i = 1; i < ea.length; i++)
                 if (ea[i] > max) max = ea[i]
 
-            if (max <= this.es) break
+            if (this.es != 0 && max <= this.es) break
+
+            if (this.imax > 1000) break
 
         }
 
