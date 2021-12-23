@@ -38,8 +38,7 @@ export class Substitution {
     }
 
     steps.push(new Step(variable + " : ", solution));
-    let result = <Matrix>steps[steps.length - 1].getMatrix();
-    return [steps, result];
+    return [steps, solution];
   }
 
   static backward(
@@ -77,7 +76,6 @@ export class Substitution {
     }
 
     steps.push(new Step("Solution : ", solution));
-    let result = <Matrix>steps[steps.length - 1].getMatrix();
-    return [steps, result];
+    return [steps, solution];
   }
 }
