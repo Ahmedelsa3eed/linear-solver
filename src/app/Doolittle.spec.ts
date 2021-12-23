@@ -1,18 +1,14 @@
 import { TestBed } from '@angular/core/testing';
 import { Matrix } from './Matrix';
-import { Doolittle } from "./Doolittle";
-import {Cholesky} from "./Cholesky";
-import {Crout} from "./Crout";
+import { Doolittle } from './Doolittle';
 
 describe('Doolittle', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [
-        Doolittle
-      ],
+      declarations: [Doolittle],
     }).compileComponents();
   });
-  it("mohamed ayman doolittle",()=>{
+  it('mohamed ayman doolittle', () => {
     // const matrixA = Matrix.fromArray([
     //   [2,  3, -1],
     //   [3,  2,  1],
@@ -35,18 +31,17 @@ describe('Doolittle', () => {
     //   [4, -22,  -20]
     // ]);
     const matrixA = Matrix.fromArray([
-        [4,  12, -16],
-        [12,  37,  -43],
-        [-16, -43,  98]
+      [4, 12, -16],
+      [12, 37, -43],
+      [-16, -43, 98],
     ]);
-   let s = Doolittle.solve(matrixA, new Matrix(3,1));
-   //  let s = Cholesky.solve(matrixA);
-   //  let s = Crout.solve(matrixA);
+    //  let s = Doolittle.solve(matrixA, new Matrix(3,1));
+    //  let s = Cholesky.solve(matrixA);
+    //  let s = Crout.solve(matrixA);
 
-    for(let i of s[0]) {
-      console.log(i.getMsg(), "\n", i.getMatrix()?.print());
-    }
-
+    // for(let i of s[0]) {
+    //   console.log(i.getMsg(), "\n", i.getMatrix()?.print());
+    // }
 
     //
     // expect(L.getElement(0, 0)).toEqual(1);
@@ -58,8 +53,5 @@ describe('Doolittle', () => {
     // expect(L.getElement(2, 0)).toEqual(0.5);
     // expect(L.getElement(2, 1)).toEqual(2.6);
     // expect(L.getElement(2, 2)).toEqual(1);
-
   });
-
-
 });

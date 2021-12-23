@@ -8,9 +8,15 @@ export class Jacobi {
     imax!: number
     n!: number; //the number of rows (square matrix)
 
-    constructor(A?: Matrix, B?: Matrix, intialGuess?: number[], es?: number, imax: number = 1000) {
+    constructor(
+        A?: Matrix,
+        B?: Matrix,
+        intialGuess?: number[],
+        es?: number,
+        imax: number = 1000
+    ) {
         if (A && B && intialGuess) {
-            this.SetMatrix(A)
+            this.setMatrix(A)
             this.B = B.clone()
             this.intialGuess = intialGuess
             this.imax = imax
@@ -19,7 +25,7 @@ export class Jacobi {
         if (es) this.es = es
     }
 
-    SetMatrix(M: Matrix) {
+    private setMatrix(M: Matrix) {
         if (M.getRows() != M.getCols()) {
             throw new Error("The matrix isn't square");
         }
@@ -27,7 +33,7 @@ export class Jacobi {
         this.n = M.getRows();
     }
 
-    jacobi(): Matrix {
+    solve(): Matrix {
         console.log(this.showTheFormula())
         let x: number[][] = []
         const ea = []
@@ -60,7 +66,7 @@ export class Jacobi {
         return Matrix.fromArray(x)
     }
 
-    showTheFormula(): string[] {
+    private showTheFormula(): string[] {
         const equations: string[] = []
         for (let i = 0; i < this.n; i++) {
             let st = ''
