@@ -137,6 +137,18 @@ export class Matrix {
         }
         return result;
     }
+    printLatex(): string {
+        let result = "\\begin{pmatrix}\n";
+        for (let i = 0; i < this.rows; i++) {
+            for (let j = 0; j < this.cols; j++) {
+                const separator = j === this.cols - 1 ? "" : " & ";
+                result += this.data[i][j] + separator;
+            }
+            result += "\\\\\n";
+        }
+        result += "\\end{pmatrix}\n";
+        return result;
+    }
     transpose():Matrix{
         let result= new Matrix(this.cols,this.rows);
             for (let i = 0; i < this.rows; i++) {
