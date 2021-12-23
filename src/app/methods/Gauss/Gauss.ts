@@ -1,4 +1,5 @@
 import { Big } from "src/app/shared/Big";
+import { Status } from "src/app/shared/Status.model";
 import { Matrix } from "../../shared/Matrix";
 import { Step } from "../../shared/Step";
 
@@ -33,9 +34,9 @@ export class Gauss {
     return matrix;
   }
 
-  protected gauss(matrix: Matrix, b: Matrix): [Step[], Matrix, string] {
+  protected gauss(matrix: Matrix, b: Matrix): [Step[], Matrix, Status] {
     let x: Array<Step> = new Array();
-    let stat: string = "UNIQUE";
+    let stat: Status = Status.UNIQUE;
     console.log(matrix.print());
     for (let i = 0; i < matrix.getCols() - 1; i++) {
       matrix = this.partialPivoting(i, i, matrix, b);
@@ -74,17 +75,17 @@ export class Gauss {
       }
     }
     if (matrix.getElement(matrix.getRows() - 1, matrix.getCols() - 1) == 0 && b.getElement(b.getRows() - 1, 0) == 0) {
-      stat = "INFINITE";
+      stat = Status.INFINITE;
     }
     if (matrix.getElement(matrix.getRows() - 1, matrix.getCols() - 1) == 0 && b.getElement(b.getRows() - 1, 0) != 0) {
-      stat = "NO_SOLUTION";
+      stat = Status.NO_SOLUTION;
     }
     return [x, matrix, stat];
   }
 
-  solve(matrix: Matrix, b: Matrix): [Step[], Matrix, string] {
+  solve(matrix: Matrix, b: Matrix): [Step[], Matrix, Status] {
     let step: Step[] = [];
-    let stat = "UNIQUE";
+    let stat = Status.UNIQUE;
     const x = new Matrix(matrix.getRows(), 1);
     matrix = this.gauss(matrix, b)[1];
     step.push(new Step("Applying Gauss elimination :",null))

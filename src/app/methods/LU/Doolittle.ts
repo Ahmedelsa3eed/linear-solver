@@ -2,6 +2,7 @@ import { LU } from "./LU";
 import { Matrix } from "../../shared/Matrix";
 import { Step } from "../../shared/Step";
 import { Big } from "src/app/shared/Big";
+import { Status } from "src/app/shared/Status.model";
 
 export class Doolittle extends LU {
   private static partialPivotIn(U: Matrix, currentRow: number): number {
@@ -14,22 +15,22 @@ export class Doolittle extends LU {
     return indexOfMaxPivot;
   }
 
-  public override solve(U: Matrix,b:Matrix,vars:string[]): [Step[],Matrix, string] {
+  public override solve(U: Matrix,b:Matrix,vars:string[]): [Step[],Matrix, Status] {
     console.log("matrix to be factorized\n", U.print());
-    let stat = "FACTORISABLE";
+    let stat = Status.FACTORISABLE;
     let o = [];
     for (let i = 0; i < U.getRows(); i++) o[i] = i;
     let steps: Step[] = [];
     let L: Matrix = new Matrix(U.getRows(), U.getCols());
 
     if (U.getCols() != U.getRows()) {
-      stat = "NOT_FACTORISABLE";
+      stat = Status.NOT_FACTORISABLE;
       return [steps,L, stat];
     }
     for (let i = 0; i < U.getRows() - 1; i++) {
       let fix = Doolittle.partialPivotIn(U, i);
       if (fix == 0) {
-        stat = "NOT_FACTORISABLE";
+        stat = Status.NOT_FACTORISABLE;
         return [steps,L, stat];
       }
       if (fix != i) {
@@ -39,7 +40,7 @@ export class Doolittle extends LU {
         U.exchangeRows(i, fix);
         L.exchangeRows(i, fix);
         steps.push(new Step(`Apply Partial Pivoting Exchange Row ${fix+1} with Row ${i+1}`, U));
-        console.log(`Apply Partial Pivoting Exchange Row ${fix + 1} with Row ${i + 1}\n`, U);
+        console.log(`Apply Partial Pivoting Exchange Row ${fix + 1} with Row ${i + 1}$\\newline$`, U);
       }
 
       for (let row = i + 1; row < U.getRows(); row++) {
@@ -62,7 +63,7 @@ export class Doolittle extends LU {
           U.setElement(row, col, newValue);
           steps.push(new Step("U_{"+row+""+col+"}"+" = "+str,U));
         }
-        steps.push(new Step("\n"+`${scalar}R${i + 1} + R${row + 1} \\Rightarrow R${row + 1}`, U));
+        steps.push(new Step("$\\newline$"+`${scalar}R${i + 1} + R${row + 1} \\Rightarrow R${row + 1}`, U));
         // console.log(`${scalar}R_${i + 1}\ + R_${row + 1} \\Rightarrow R_${row + 1}`);
         // console.log(-1 * scalar , " + ", L.getElement(row, i))
         const newValue =
@@ -79,8 +80,8 @@ export class Doolittle extends LU {
       }
     }
     for (let i = 0; i < U.getRows(); i++) L.setElement(i, i, 1); // Initialize the main diagonal
-    steps.push(new Step("\nL :",L));
-    steps.push(new Step("\nU :",U));
+    steps.push(new Step("$\\newline$L :",L));
+    steps.push(new Step("$\\newline$U :",U));
     let sol=this.Solve(L,U,b,vars,steps,o)
     
     return [steps,sol, stat];

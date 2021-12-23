@@ -2,6 +2,7 @@ import { Gauss } from "../Gauss/Gauss";
 import { Matrix } from "../../shared/Matrix";
 import { Step } from "../../shared/Step";
 import { Big } from "src/app/shared/Big";
+import { Status } from "src/app/shared/Status.model";
 
 export class GaussJordan extends Gauss {
   private dividByPivotElement(
@@ -22,12 +23,12 @@ export class GaussJordan extends Gauss {
     b.setElement(Row, 0, b.getElement(Row, 0) / pivot);
   }
 
-  private gaussJordan(matrix: Matrix, b: Matrix): [Step[], Matrix, string] {
+  private gaussJordan(matrix: Matrix, b: Matrix): [Step[], Matrix, Status] {
     console.log(matrix.print());
     let GaussRes = this.gauss(matrix, b);
     let x = GaussRes[0];
     let stat = GaussRes[2];
-    if (stat === "INFINITE" || stat === "NO_SOLUTION") {
+    if (stat === Status.INFINITE || stat === Status.NO_SOLUTION) {
       return [x, matrix, stat];
     }
     console.log(matrix.print());
@@ -76,7 +77,7 @@ export class GaussJordan extends Gauss {
     return [x, matrix, stat];
   }
 
-  override solve(matrix: Matrix, b: Matrix): [Step[], Matrix, string] {
+  override solve(matrix: Matrix, b: Matrix): [Step[], Matrix, Status] {
     return this.gaussJordan(matrix, b);
   }
 }

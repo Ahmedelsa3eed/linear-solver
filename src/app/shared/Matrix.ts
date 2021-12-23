@@ -1,3 +1,5 @@
+import { Big } from "./Big";
+
 export class Matrix {
     private rows: number;
     private cols: number;
@@ -138,15 +140,15 @@ export class Matrix {
         return result;
     }
     printLatex(): string {
-        let result = "\\begin{pmatrix}\n";
+        let result = "\\begin{pmatrix}";
         for (let i = 0; i < this.rows; i++) {
             for (let j = 0; j < this.cols; j++) {
                 const separator = j === this.cols - 1 ? "" : " & ";
                 result += this.data[i][j] + separator;
             }
-            result += "\\\\\n";
+            result += "\\\\";
         }
-        result += "\\end{pmatrix}\n";
+        result += "\\end{pmatrix}";
         return result;
     }
     transpose():Matrix{
@@ -157,6 +159,14 @@ export class Matrix {
                 }
             }
             return result;
+    }
+    changePrecision(precision: number): Matrix {
+        for (let i = 0; i < this.rows; i++) {
+            for (let j = 0; j < this.cols; j++) {
+                this.data[i][j] = Big.Precise(this.data[i][j], precision);
+            }
+        }
+        return this;
     }
     clone(): Matrix {
         let result = new Matrix(this.rows, this.cols);

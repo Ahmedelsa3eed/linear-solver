@@ -2,17 +2,18 @@ import { Step } from "../../shared/Step";
 import { Matrix } from "../../shared/Matrix";
 import { LU } from "./LU";
 import { Big } from "src/app/shared/Big";
+import { Status } from "src/app/shared/Status.model";
 
 export class Cholesky extends LU {
-  override solve(X: Matrix,b:Matrix,vars:string[]): [Step[],Matrix, string] {
-    let stat = "FACTORISABLE";
+  override solve(X: Matrix,b:Matrix,vars:string[]): [Step[], Matrix, Status] {
+    let stat = Status.FACTORISABLE;
     let n: number = X.getRows();
     let U: Matrix = new Matrix(X.getRows(), X.getCols());
     let L: Matrix = new Matrix(X.getRows(), X.getCols());
     let steps: Step[] = [];
     let sum: number;
     if (!X.isPosDef()) {
-      stat = "NOT_POSITIVE_DEF";
+      stat = Status.NOT_POSITIVE_DEF;
       return [steps,L, stat];
     }
     steps.push(new Step("Applying LU-Cholesky decomposition", null));
@@ -54,7 +55,7 @@ export class Cholesky extends LU {
     }
     steps.push(new Step("L :", L));
     U = L.transpose();
-    steps.push(new Step("\nConstructing U where U is the transpose of L", U));
+    steps.push(new Step("$\\newline$Constructing U where U is the transpose of L", U));
     let sol=this.Solve(L,U,b,vars,steps);
     return [steps,sol, stat];
   }

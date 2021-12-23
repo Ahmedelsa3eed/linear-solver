@@ -2,10 +2,11 @@ import { Step } from "../../shared/Step";
 import { Matrix } from "../../shared/Matrix";
 import { LU } from "./LU";
 import { Big } from "src/app/shared/Big";
+import { Status } from "src/app/shared/Status.model";
 
 export class Crout extends LU {
-  override solve(X: Matrix,b:Matrix,vars:string[]): [ Step[],Matrix, string] {
-    let stat = "FACTORISABLE";
+  override solve(X: Matrix,b:Matrix,vars:string[]): [ Step[],Matrix, Status] {
+    let stat = Status.FACTORISABLE;
     let steps: Step[] = [];
     let row, col, k: number;
     let sum = 0;
@@ -13,7 +14,7 @@ export class Crout extends LU {
     let U: Matrix = new Matrix(X.getRows(), X.getCols());
     let L: Matrix = new Matrix(X.getRows(), X.getCols());
     if (X.getCols() != X.getRows()) {
-      stat = "NOT_FACTORISABLE";
+      stat = Status.NOT_FACTORISABLE;
       return [ steps,L, stat];
     }
     steps.push(new Step("Applying LU-Crout decomposition", null));
@@ -45,7 +46,7 @@ export class Crout extends LU {
       }
       for (row = col; row < n; row++) {
         if (L.getElement(col, col) == 0) {
-          stat = "NOT_FACTORISABLE";
+          stat = Status.NOT_FACTORISABLE;
           return [steps,L, stat];
         }
         sum = 0;

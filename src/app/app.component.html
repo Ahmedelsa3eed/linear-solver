@@ -19,7 +19,7 @@
         <button
           class="btn primary"
           [attr.disabled]="!validateEquations() ? true : null"
-          (click)="parseEquations()"
+          (click)="submitEquations()"
         >
           Next
         </button>
@@ -30,19 +30,19 @@
           <span>Choose one of the solving methods</span>
         </div>
         <div class="cardSelectContainer">
-          <button>
+          <button (click)="submitMethod(MethodIDEnum.GAUSS)">
             Gauss Elimination
           </button>
-          <button>
+          <button (click)="submitMethod(MethodIDEnum.GAUSS_JORDAN)">
             Gauss Jordan
           </button>
-          <button>
+          <button (click)="submitMethod(MethodIDEnum.LU)">
             LU Decomposition
           </button>
-          <button>
+          <button (click)="submitMethod(MethodIDEnum.SEIDIL)">
             Gauss Seidil
           </button>
-          <button>
+          <button (click)="submitMethod(MethodIDEnum.JACOBI)">
             Jacobi Iteration
           </button>
         </div>
@@ -62,7 +62,9 @@
             [(ngModel)]="precision"
           />
         </div>
-        <button class="btn primary">Next</button>
+        <button class="btn primary" (click)="submitPrecision()">
+          Next
+        </button>
       </div>
       <div class="step" [class.hidden]="stepID !== 'LU_PARAM'">
         <div class="stepHeader">
@@ -70,15 +72,100 @@
           <span>Adjust paramaters of the method</span>
         </div>
         <div class="stepForm">
-          <textarea
+          <label>Format Of L & U</label>
+          <select
             class="form-control"
-            placeholder="Equations separated by line break"
-            rows="5"
-            wrap="off"
             [(ngModel)]="luVariant"
-          ></textarea>
+          >
+            <option value="DOWNLITTLE">Downlittle Form</option>
+            <option value="CROUT">Crout Form</option>
+            <option value="CHOLESKY">Cholesky Form</option>
+          </select>
         </div>
-        <button class="btn primary">Next</button>
+        <button class="btn primary" (click)="showSolution()">
+          Next
+        </button>
+      </div>
+      <div
+        class="step"
+        [class.hidden]="
+          stepID !== 'JACOBI_PARAM' &&
+          stepID !== 'SEIDIL_PARAM'
+        "
+      >
+        <div class="stepHeader">
+          <span>Step 4</span>
+          <span>Adjust paramaters of the method</span>
+        </div>
+        <div class="stepForm">
+          <label>
+            Initial guess for <b>{{ coefficients.join(", ") }}</b>
+          </label>
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Separated by comma"
+            [(ngModel)]="initialGuess"
+          />
+          <label>Stopping Condition</label>
+          <select
+            class="form-control"
+            [(ngModel)]="stoppingCondition"
+          >
+            <option value="NUMBER_ITERATIONS">Number of Iterations</option>
+            <option value="ABSOLUTE_RELATIVE_ERROR">Absolute Relative Error</option>
+          </select>
+          <label *ngIf="stoppingCondition === 'NUMBER_ITERATIONS'">
+            Number of Iterations
+          </label>
+          <input
+            type="number"
+            class="form-control"
+            placeholder="Separated by comma"
+            min="1"
+            *ngIf="stoppingCondition === 'NUMBER_ITERATIONS'"
+            [(ngModel)]="noIterations"
+          />
+          <label *ngIf="stoppingCondition === 'ABSOLUTE_RELATIVE_ERROR'">
+            Absolute Relative Error
+          </label>
+          <input
+            type="number"
+            class="form-control"
+            min="0"
+            *ngIf="stoppingCondition === 'ABSOLUTE_RELATIVE_ERROR'"
+            [(ngModel)]="absRelErr"
+          />
+        </div>
+        <button
+          class="btn primary"
+          [attr.disabled]="!validateIterativeParams() ? true : null"
+          (click)="showSolution()"
+        >
+          Solve!
+        </button>
+      </div>
+      <div class="step" [class.hidden]="stepID !== 'SOLUTION'">
+        <div class="stepHeader">
+          <span>Solution</span>
+          <span>Here is the solution of equations</span>
+        </div>
+        <p>
+          <b>Time:</b> {{ this.calculationTime * 1000 }} microseconds
+        </p>
+        <p *ngIf="solvability">
+          <b>Solvability:</b> {{ this.solvability }}
+        </p>
+        <p *ngIf="stringSolution">
+          <b>Solution:</b> {{ this.stringSolution }}
+        </p>
+        <p>
+          <b>Steps of Solving:</b>
+        </p>
+        <ng-katex-paragraph
+          *ngIf="katexExplaination"
+          [paragraph]="katexExplaination"
+        ></ng-katex-paragraph>
       </div>
     </div>
   </div>

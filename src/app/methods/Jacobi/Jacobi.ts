@@ -1,4 +1,5 @@
 import { Big } from "src/app/shared/Big";
+import { Status } from "src/app/shared/Status.model";
 import { Matrix } from "../../shared/Matrix";
 import { Step } from "../../shared/Step";
 
@@ -38,11 +39,11 @@ export class Jacobi {
     this.n = M.getRows();
   }
 
-  solve(A:Matrix,B:Matrix,initialGuess:number[],vars:string[],es?:number,imax?:number): [Step[], Matrix, string] {
+  solve(A:Matrix,B:Matrix,initialGuess:number[],vars:string[],es?:number,imax?:number): [Step[], Matrix, Status] {
     let steps = this.showTheFormula();
     try{this.setMatrix(A);}
     catch(e:any){
-      return([steps,A,"ERROR"]);
+      return([steps,A,Status.ERROR]);
     }
     this.B=B.clone();
     this.intialGuess=initialGuess;
@@ -53,7 +54,7 @@ export class Jacobi {
     let guess = this.intialGuess;
     for (let k = 0; k < this.imax; k++) {
       x[k] = [];
-      steps.push(new Step("\nIteration #" + (k), null));
+      steps.push(new Step("$\\newline$Iteration #" + (k), null));
       for (let i = 0; i < this.n; i++) {
         x[k][i] = this.B.getElement(i, 0);
         var Sum="( ";
@@ -101,7 +102,7 @@ export class Jacobi {
 
       if (this.imax > 1000) break;
     }
-    return [steps, Matrix.fromArray(x), "(O.O)"];
+    return [steps, Matrix.fromArray(x), Status.ERROR];
   }
 
   private showTheFormula(): Step[] {

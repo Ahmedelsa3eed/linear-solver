@@ -1,5 +1,15 @@
 import { Component } from '@angular/core';
+import { Gauss } from './methods/Gauss/Gauss';
+import { GaussJordan } from './methods/GaussJordan/GaussJordan';
+import { Seidil } from './methods/GaussSeidil/Seidil';
+import { Jacobi } from './methods/Jacobi/Jacobi';
+import { Cholesky } from './methods/LU/Cholesky';
+import { Crout } from './methods/LU/Crout';
+import { Doolittle } from './methods/LU/Doolittle';
+import { LUFactory } from './methods/LU/LUFactory';
 import { Matrix } from './shared/Matrix';
+import { Status } from './shared/Status.model';
+import { Step } from './shared/Step';
 
 enum StepID {
   EQUATIONS = 'EQUATIONS',
@@ -7,8 +17,17 @@ enum StepID {
   LU_PARAM= 'LU_PARAM',
   SEIDIL_PARAM = 'SEIDIL_PARAM',
   JACOBI_PARAM = 'JACOBI_PARAM',
-  PRECISION = 'PRECISION'
+  PRECISION = 'PRECISION',
+  SOLUTION = 'SOLUTION',
 };
+
+enum MethodID {
+  GAUSS = 'GAUSS',
+  GAUSS_JORDAN = 'GAUSS_JORDAN',
+  LU = 'LU',
+  SEIDIL = 'SEIDIL',
+  JACOBI = 'JACOBI',
+}
 
 enum LuVariant {
   DOWNLITTLE = 'DOWNLITTLE',
@@ -31,16 +50,44 @@ export class AppComponent {
   stepID: StepID = StepID.EQUATIONS;
   equations: string = "";
   precision: number = 1;
-  method: string = "";
+  method: MethodID = MethodID.GAUSS;
   luVariant: LuVariant = LuVariant.DOWNLITTLE;
   initialGuess: string = "";
   stoppingCondition: StoppingCondition = StoppingCondition.NUMBER_ITERATIONS;
+  noIterations: number = 1;
+  absRelErr: number = 0;
   parsedEquations: Matrix[] = [];
+  coefficients: string[] = [];
+  MethodIDEnum = MethodID;
+  solution: [Step[], Matrix, Status] | null = null;
+  katexExplaination: string = "";
+  calculationTime: number = 0;
+  stringSolution: string = "";
+  solvability: Status | undefined = undefined;
   submitEquations(): void {
+    this.parseEquations();
     this.stepID = StepID.METHOD;
   }
-  submitMethod(method: string): void {
+  submitMethod(method: MethodID): void {
     this.method = method;
+    this.stepID = StepID.PRECISION;
+  }
+  submitPrecision(): void {
+    this.parsedEquations[0].changePrecision(this.precision);
+    this.parsedEquations[1].changePrecision(this.precision);
+    switch(this.method) {
+      case MethodID.LU:
+        this.stepID = StepID.LU_PARAM;
+        break;
+      case MethodID.SEIDIL:
+        this.stepID = StepID.SEIDIL_PARAM;
+        break;
+      case MethodID.JACOBI:
+        this.stepID = StepID.JACOBI_PARAM;
+        break;
+      default:
+        this.showSolution();
+    }
   }
   validateEquations(): Boolean {
     if (this.equations.trim().length === 0) return false;
@@ -67,6 +114,7 @@ export class AppComponent {
     equation = equation.replace(/\-\+/g, "-");
     equation = equation.replace(/([-+])([a-z])/g, "$11$2");
     equation = equation.replace(/[*\/]([a-z])/g, "$1");
+    equation = equation.replace(/^([a-z])/, "1$1");
     while (equation.search(/([+-]?\d+(?:\.\d+)?)([*\/])([+-]?\d+(?:\.\d+)?)/) !== -1) {
       equation = equation.replace(
         /([+-]?\d+(?:\.\d+)?)([*\/])([+-]?\d+(?:\.\d+)?)/,
@@ -116,11 +164,111 @@ export class AppComponent {
         }
       }
     }
+    const ordered = Object.keys(cols).sort().reduce(
+      (obj: { [key: string]: number[] }, key: string) => { 
+        obj[key] = cols[key]; 
+        return obj;
+      }, 
+      {}
+    );
+    this.coefficients = Object.keys(ordered);
     this.parsedEquations = [
-      Matrix.fromArray(Object.values(cols)).transpose(),
+      Matrix.fromArray(Object.values(ordered)).transpose(),
       Matrix.fromArray(results.map(result => [result]))
     ]
     console.log(this.parsedEquations[0].print());
     console.log(this.parsedEquations[1].print());
   };
+  validateIterativeParams(): Boolean {
+    if (this.initialGuess.search(/[^\d.\s,]/) !== -1) return false;
+    const parsedInitialGuess = this.initialGuess
+      .replace(/\s/g, "")
+      .split(',')
+      .map(x => parseFloat(x));
+    if (parsedInitialGuess.length !== this.coefficients.length) return false;
+    if (parsedInitialGuess.some(x => isNaN(x))) return false;
+    return true;
+  }
+  showSolution(): void {
+    const startTime = performance.now();
+    switch(this.method) {
+      case MethodID.GAUSS:
+        this.solution = new Gauss(this.precision).solve(this.parsedEquations[0], this.parsedEquations[1]);
+        break;
+      case MethodID.GAUSS_JORDAN:
+        this.solution = new GaussJordan(this.precision).solve(this.parsedEquations[0], this.parsedEquations[1]);
+        break;
+      case MethodID.JACOBI:
+        var parsedInitialGuess = this.initialGuess
+          .replace(/\s/g, "")
+          .split(',')
+          .map(x => parseFloat(x));
+        this.solution = new Jacobi(
+          this.parsedEquations[0],
+          this.parsedEquations[1],
+          parsedInitialGuess,
+          this.stoppingCondition === StoppingCondition.ABSOLUTE_RELATIVE_ERROR ? this.absRelErr : undefined,
+          this.stoppingCondition === StoppingCondition.NUMBER_ITERATIONS ? this.noIterations : undefined,
+          this.precision
+        ).solve(
+          this.parsedEquations[0],
+          this.parsedEquations[1],
+          parsedInitialGuess,
+          this.coefficients,
+          this.stoppingCondition === StoppingCondition.ABSOLUTE_RELATIVE_ERROR ? this.absRelErr : undefined,
+          this.stoppingCondition === StoppingCondition.NUMBER_ITERATIONS ? this.noIterations : undefined
+        )
+        break;
+        case MethodID.SEIDIL:
+          var parsedInitialGuess = this.initialGuess
+            .replace(/\s/g, "")
+            .split(',')
+            .map(x => parseFloat(x));
+          this.solution = new Seidil(
+            this.parsedEquations[0],
+            this.parsedEquations[1],
+            parsedInitialGuess,
+            this.stoppingCondition === StoppingCondition.ABSOLUTE_RELATIVE_ERROR ? this.absRelErr : undefined,
+            this.stoppingCondition === StoppingCondition.NUMBER_ITERATIONS ? this.noIterations : undefined,
+            this.precision
+          ).solve(
+            this.parsedEquations[0],
+            this.parsedEquations[1],
+            parsedInitialGuess,
+            this.coefficients,
+            this.stoppingCondition === StoppingCondition.ABSOLUTE_RELATIVE_ERROR ? this.absRelErr : undefined,
+            this.stoppingCondition === StoppingCondition.NUMBER_ITERATIONS ? this.noIterations : undefined
+          )
+          break;
+      case MethodID.LU:
+        console.log(this.coefficients)
+        if (this.luVariant === LuVariant.DOWNLITTLE) {
+          this.solution = new LUFactory(this.precision).getDecomposer("doolittle").solve(this.parsedEquations[0], this.parsedEquations[1], this.coefficients);
+        } else if (this.luVariant === LuVariant.CHOLESKY) {
+          this.solution = new LUFactory(this.precision).getDecomposer("cholesky").solve(this.parsedEquations[0], this.parsedEquations[1], this.coefficients);
+        } else if (this.luVariant === LuVariant.CROUT) {
+          this.solution = new LUFactory(this.precision).getDecomposer("crout").solve(this.parsedEquations[0], this.parsedEquations[1], this.coefficients);
+        }
+        break;
+      default:
+        break;
+    }
+    const endTime = performance.now();
+    this.calculationTime = endTime - startTime;
+    this.katexExplaination = this.solution?.[0].map(x => x.getMsg()).join("$\\newline$") || ""
+    this.solvability = this.solution?.[2]
+    if (
+      this.solvability !== Status.ERROR &&
+      this.solvability !== Status.NO_SOLUTION &&
+      this.solvability !== Status.NOT_FACTORISABLE &&
+      this.solvability !== Status.NOT_POSITIVE_DEF &&
+      this.solution?.[1] !== undefined
+    ) {
+      this.stringSolution = "";
+      for (const [i, coeff] of this.coefficients.entries()) {
+        this.stringSolution += `${coeff} = ${this.solution?.[1].getElement(i, 0)}\n`;
+      }
+    }
+    this.stepID = StepID.SOLUTION;
+  }
 }

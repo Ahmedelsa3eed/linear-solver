@@ -1,3 +1,4 @@
+import { Status } from "src/app/shared/Status.model";
 import { Matrix } from "../../shared/Matrix";
 import { Step } from "../../shared/Step";
 import { Substitution } from "./Substitution";
@@ -7,7 +8,7 @@ export class LU {
   constructor(precision: number = 6) {
     this.precision = precision;
   }
-  public solve(X: Matrix,B:Matrix,vars:string[]): [Step[],Matrix, string] {
+  public solve(X: Matrix,B:Matrix,vars:string[]): [Step[], Matrix, Status] {
     throw new Error("Implementation missing");
   }
   public Solve(
