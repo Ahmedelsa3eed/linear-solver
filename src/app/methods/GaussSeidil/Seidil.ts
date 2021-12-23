@@ -103,7 +103,7 @@ export class Seidil {
       if (this.imax > 1000) break;
     }
 
-    return [steps, Matrix.fromArray(x), Status.ERROR];
+    return [steps, Matrix.fromArray(x), Status.UNIQUE];
   }
 
   private showTheFormula(): Step[] {
