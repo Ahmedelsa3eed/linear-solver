@@ -1,7 +1,7 @@
 export class Big {
     private precision: number;
     private value: number;
-    constructor(precision: number, value: number) {
+    constructor(value: number, precision: number) {
         this.precision = precision;
         this.value = +value.toPrecision(precision);
     }
@@ -11,32 +11,52 @@ export class Big {
     getValue(): number {
         return this.value;
     }
-    add(other: number): Big {
-        this.value += +other.toPrecision(this.precision);
+    add(other: number | Big): Big {
+        this.value += other instanceof Big ?
+            +other.getValue().toPrecision(this.precision) :
+            +other.toPrecision(this.precision);
         this.value = +this.value.toPrecision(this.precision);
         return this;
     }
-    sub(other: number): Big {
-        this.value -= +other.toPrecision(this.precision);
+    sub(other: number | Big): Big {
+        this.value -= other instanceof Big ?
+            +other.getValue().toPrecision(this.precision) :
+            +other.toPrecision(this.precision);
         this.value = +this.value.toPrecision(this.precision);
         return this;
     }
-    mul(other: number): Big {
-        this.value *= +other.toPrecision(this.precision);
+    mul(other: number | Big): Big {
+        this.value *= other instanceof Big ?
+            +other.getValue().toPrecision(this.precision) :
+            +other.toPrecision(this.precision);
         this.value = +this.value.toPrecision(this.precision);
         return this;
     }
-    div(other: number): Big {
-        this.value /= +other.toPrecision(this.precision);
+    div(other: number | Big): Big {
+        this.value /= other instanceof Big ?
+            +other.getValue().toPrecision(this.precision) :
+            +other.toPrecision(this.precision);
         this.value = +this.value.toPrecision(this.precision);
         return this;
     }
-    pow(other: number): Big {
+    pow(other: number | Big): Big {
         const base = this.value;
-        for (let i = 0; i < other; i++) {
+        const power = other instanceof Big ?
+            +other.getValue().toPrecision(this.precision) :
+            +other.toPrecision(this.precision);
+        for (let i = 0; i < power; i++) {
             this.value *= base;
             this.value = +this.value.toPrecision(this.precision);
         }
+        return this;
+    }
+    sqrt(): Big {
+        this.value = Math.sqrt(this.value);
+        this.value = +this.value.toPrecision(this.precision);
+        return this;
+    }
+    abs(): Big {
+        this.value = Math.abs(this.value);
         return this;
     }
 }

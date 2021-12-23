@@ -1,14 +1,14 @@
-import { TestBed } from '@angular/core/testing';
-import { Gauss } from './Gauss';
-import { Matrix } from './Matrix';
-describe('Gauss', () => {
+import { TestBed } from "@angular/core/testing";
+import { Gauss } from "./Gauss";
+import { Matrix } from "../../shared/Matrix";
+describe("Gauss", () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [Gauss],
     }).compileComponents();
   });
 
-  it('should solve using Gauss', () => {
+  it("should solve using Gauss", () => {
     const matrixA = Matrix.fromArray([
       [4, 2, 1],
       [-1, 2, 0],
@@ -35,8 +35,8 @@ describe('Gauss', () => {
     expect(matrixB.getElement(1, 0)).toEqual(5.75);
     expect(matrixB.getElement(2, 0)).toEqual(10.5);
 
-    expect(x.getElement(0, 0)).toEqual(1);
-    expect(x.getElement(1, 0)).toEqual(2);
-    expect(x.getElement(2, 0)).toEqual(3);
+    expect(x[1].getElement(0, 0)).toEqual(1);
+    expect(x[1].getElement(1, 0)).toEqual(2);
+    expect(x[1].getElement(2, 0)).toEqual(3);
   });
 });

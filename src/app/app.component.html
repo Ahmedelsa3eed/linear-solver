@@ -1,3 +1,41 @@
-
+<div class="app-shell">
+  <div class="app-container">
+    <div></div>
+    <div>
+      <div class="step" [class.hidden]="stepID !== 'EQUATIONS'">
+        <div class="stepHeader">
+          <span>Step 1</span>
+          <span>Enter equations needed to be solved</span>
+        </div>
+        <div class="stepForm">
+          <textarea
+            class="form-control"
+            placeholder="Equations separated by line break"
+            rows="5"
+            wrap="off"
+            [ngModel]="equations"
+          ></textarea>
+        </div>
+        <button class="btn primary">Next</button>
+      </div>
+      <div class="step" [class.hidden]="stepID !== 'METHOD'">
+        <div class="stepHeader">
+          <span>Step 1</span>
+          <span>Enter equations needed to be solved</span>
+        </div>
+        <div class="stepForm">
+          <textarea
+            class="form-control"
+            placeholder="Equations separated by line break"
+            rows="5"
+            wrap="off"
+            [ngModel]="equations"
+          ></textarea>
+        </div>
+        <button class="btn primary">Next</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <router-outlet></router-outlet>

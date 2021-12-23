@@ -1,5 +1,14 @@
 import { Component } from '@angular/core';
 
+enum StepID {
+  EQUATIONS = 'EQUATIONS',
+  METHOD = 'METHOD',
+  LU_PARAM= 'LU_PARAM',
+  SEIDIL_PARAM = 'SEIDIL_PARAM',
+  JACOBI_PARAM = 'JACOBI_PARAM',
+  PRECISION = 'PRECISION'
+};
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -7,4 +16,7 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'linear-solver';
+  stepNumber: number = 1;
+  stepID: StepID = StepID.EQUATIONS;
+  equations: string = "";
 }

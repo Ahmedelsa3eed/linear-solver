@@ -1,14 +1,14 @@
-import { TestBed } from '@angular/core/testing';
-import { GaussJordan } from './GaussJordan';
-import { Matrix } from './Matrix';
-describe('GaussJordan', () => {
+import { TestBed } from "@angular/core/testing";
+import { GaussJordan } from "./GaussJordan";
+import { Matrix } from "../../shared/Matrix";
+describe("GaussJordan", () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [GaussJordan],
     }).compileComponents();
   });
 
-  it('should solve using GaussJordan', () => {
+  it("should solve using GaussJordan", () => {
     const matrixA = Matrix.fromArray([
       [4, 2, 1],
       [-1, 2, 0],
@@ -16,7 +16,7 @@ describe('GaussJordan', () => {
     ]);
     const matrixB = Matrix.fromArray([[11], [3], [16]]);
     const gaussJordan = new GaussJordan();
-    const x = gaussJordan.solve(matrixA, matrixB);
+    gaussJordan.solve(matrixA, matrixB);
 
     expect(matrixA.getElement(0, 0)).toEqual(1);
     expect(matrixA.getElement(0, 1)).toEqual(0);
@@ -30,8 +30,8 @@ describe('GaussJordan', () => {
     expect(matrixA.getElement(2, 1)).toEqual(0);
     expect(matrixA.getElement(2, 2)).toEqual(1);
 
-    expect(x.getElement(0, 0)).toEqual(1);
-    expect(x.getElement(1, 0)).toEqual(2);
-    expect(x.getElement(2, 0)).toEqual(3);
+    expect(matrixB.getElement(0, 0)).toEqual(1);
+    expect(matrixB.getElement(1, 0)).toEqual(2);
+    expect(matrixB.getElement(2, 0)).toEqual(3);
   });
 });
