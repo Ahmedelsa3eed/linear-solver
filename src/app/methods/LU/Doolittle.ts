@@ -49,9 +49,10 @@ export class Doolittle extends LU {
           .div(U.getElement(i, i))
           .mul(-1)
           .getValue();
-
+          steps.push(new Step("\nScaler for R_"+i+1+" = "+(-1*Big.Precise(U.getElement(row, i),this.precision))+" / "+Big.Precise(U.getElement(i, i),this.precision),null));
         for (let col = 0; col < U.getCols(); col++) {
           // console.log("setElement : ", scalar , " " , U.getElement(i, col) , " + " , U.getElement(row, col));
+          let str=scalar+" * "+Big.Precise(U.getElement(i, col),this.precision)+" + "+Big.Precise(U.getElement(row, col),this.precision)
           const newValue =
             new Big
             (scalar, this.precision)
@@ -59,9 +60,10 @@ export class Doolittle extends LU {
             .add(U.getElement(row, col))
             .getValue();
           U.setElement(row, col, newValue);
+          steps.push(new Step("U_{"+row+""+col+"}"+" = "+str,U));
         }
-        steps.push(new Step(`${scalar}R${i + 1} + R${row + 1} ==> R${row + 1}`, U));
-        console.log(`${scalar}R${i + 1} + R${row + 1} ==> R${row + 1}`);
+        steps.push(new Step("\n"+`${scalar}R${i + 1} + R${row + 1} \\Rightarrow R${row + 1}`, U));
+        // console.log(`${scalar}R_${i + 1}\ + R_${row + 1} \\Rightarrow R_${row + 1}`);
         // console.log(-1 * scalar , " + ", L.getElement(row, i))
         const newValue =
           new Big
@@ -70,7 +72,7 @@ export class Doolittle extends LU {
           .add(L.getElement(row, i))
           .getValue();
         L.setElement(row, i, newValue);
-        steps.push(new Step(`Now Element L${row}${i} Become ${newValue}`, L));
+        steps.push(new Step(`Now Element L_\{${row}${i}\} has become ${newValue}`, L));
         
         // console.log("lower ", i, " : \n", L.print());
         // console.log("upper ", i, "  : \n", U.print());
