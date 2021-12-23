@@ -59,7 +59,7 @@ export class Gauss {
             .getValue();
           matrix.setElement(j, k, newValue);
         }
-        x.push(new Step("R" + (j + 1) + " <-- " + -factor + " * " + "R" + (i + 1) + " + " + "R" + (j + 1), matrix));
+        x.push(new Step("R_" + (j + 1) +" \\Leftarrow "  + -factor + " * " + "R_" + (i + 1) + " + " + "R_" + (j + 1), matrix));
         const newValue =
           new Big
           (b.getElement(j, 0), this.precision)
@@ -87,9 +87,17 @@ export class Gauss {
     let stat = "UNIQUE";
     const x = new Matrix(matrix.getRows(), 1);
     matrix = this.gauss(matrix, b)[1];
+    step.push(new Step("Applying Gauss elimination :",null))
     for (let i = matrix.getRows() - 1; i >= 0; i--) {
       let sum = 0;
+      
       for (let j = i + 1; j < matrix.getRows(); j++) {
+        const factor =
+        new Big
+        (matrix.getElement(j, i), this.precision)
+        .div(matrix.getElement(i, i))
+        .getValue();
+
         sum =
           new Big
           (sum, this.precision)
@@ -99,6 +107,7 @@ export class Gauss {
             .mul(x.getElement(j, 0))
           )
           .getValue();
+          step.push(new Step("R_" + (j + 1) + " \\Leftarrow " + -factor + " * " + "R_" + (i + 1) + " + " + "R_" + (j + 1), matrix));
       }
       const newValue =
         new Big
@@ -107,6 +116,7 @@ export class Gauss {
         .div(matrix.getElement(i, i))
         .getValue();
       x.setElement(i, 0, newValue);
+
     }
     step.push(new Step("The Solution using Gauss : ", x));
     return [step, x, stat];

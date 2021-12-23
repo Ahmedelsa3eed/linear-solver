@@ -7,16 +7,16 @@ export class LU {
   constructor(precision: number = 6) {
     this.precision = precision;
   }
-  public Decompose(X: Matrix): [Matrix, Matrix, Step[], string, any[]?] {
+  public solve(X: Matrix,B:Matrix,vars:string[]): [Step[],Matrix, string] {
     throw new Error("Implementation missing");
   }
   public Solve(
     L: Matrix,
     U: Matrix,
-    a: Matrix,
+    a: Matrix,vars:string[],
     steps?: Step[],
     o?: number[]
-  ): Matrix | [Matrix, Step[]] {
+  ): Matrix {
     let b = a;
     if (o) {
       b = new Matrix(3, 1);
@@ -29,10 +29,9 @@ export class LU {
       steps.push(...x[0]);
     }
 
-    let y = Substitution.backward(U, x[1], "X", this.precision);
+    let y = Substitution.backward(U, x[1], vars, this.precision);
     if (steps) {
       steps.push(...y[0]);
-      return [y[1], steps];
     }
     return y[1];
   }

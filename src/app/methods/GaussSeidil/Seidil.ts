@@ -37,16 +37,27 @@ export class Seidil {
     this.A = M.clone();
     this.n = M.getRows();
   }
-
-  solve(): [Step[], Matrix, string] {
+  //imax has a default value of 1000
+  solve(A:Matrix,B:Matrix,initialGuess:number[],vars:string[],es?:number,imax?:number): [Step[], Matrix, string] {
     let steps = this.showTheFormula();
+    try{this.setMatrix(A);}
+    catch(e:any){
+      return([steps,A,"ERROR"]);
+    }
+    this.B=B.clone();
+    this.intialGuess=initialGuess;
+    if(es){this.es=es;}
+    if(imax){this.imax=imax;}
+
     let x: number[][] = [];
     const ea = [];
     const guess = this.intialGuess;
     for (let k = 0; k < this.imax; k++) {
       x[k] = [];
+      steps.push(new Step("\nIteration #" + (k + 1),null));
       for (let i = 0; i < this.n; i++) {
         x[k][i] = this.B.getElement(i, 0);
+        var Sum="( ";
         for (let j = 0; j < this.n; j++) {
           if (i != j) {
             x[k][i] =
@@ -58,8 +69,15 @@ export class Seidil {
                 .mul(guess[j])
               )
               .getValue()
+
+              Sum+=Big.Precise(this.A.getElement(i, j),this.precision)+" * "+Big.Precise(guess[j],this.precision);
+ 
+              if(!(j==this.n-1||(j==i-1&&i==this.n-1))){
+                Sum+=" + ";
+              }
           }
         }
+        Sum+=" )";
         x[k][i] =
           new Big
           (x[k][i], this.precision)
@@ -72,8 +90,8 @@ export class Seidil {
           .div(x[k][i])
           .abs()
           .getValue()
-        steps.push(new Step("Iteration #" + (k + 1), Matrix.fromArray(x)));
-        guess[i] = x[k][i];
+          guess[i] = x[k][i];
+          steps.push(new Step(vars[i]+"_"+k+" = "+'\\frac{'+Big.Precise(x[k][i],this.precision)+" - "+Sum+'}{'+Big.Precise(x[k][i],this.precision)+'}',null))
       }
 
       var max = ea[0];

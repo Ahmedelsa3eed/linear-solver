@@ -18,7 +18,7 @@ describe("Gauss", () => {
     const gauss = new Gauss();
 
     const x = gauss.solve(matrixA, matrixB);
-
+    console.log(x[0]);
     expect(matrixA.getElement(0, 0)).toEqual(4);
     expect(matrixA.getElement(0, 1)).toEqual(2);
     expect(matrixA.getElement(0, 2)).toEqual(1);

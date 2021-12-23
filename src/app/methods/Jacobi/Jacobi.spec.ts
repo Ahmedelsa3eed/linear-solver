@@ -19,7 +19,9 @@ describe("Jacobi", () => {
     const intialGuess = [1, 1, 1];
 
     const jacobi = new Jacobi(matrixA, matrixB, intialGuess, 0.1, 1000, 4);
-    const x = jacobi.solve();
+    const x = jacobi.solve(matrixA, matrixB, intialGuess,["c","v","b"],0.1,1000);
+    console.log(x[0]);
+
     expect(x[1].getElement(matrixA.getRows(), 0)).toBe(1.038);
     expect(x[1].getElement(matrixA.getRows(), 1)).toBe(1.938);
     expect(x[1].getElement(matrixA.getRows(), 2)).toBe(3.07);
@@ -35,7 +37,8 @@ describe("Jacobi", () => {
     const intialGuess = [1, 1, 1];
 
     const jacobi = new Jacobi(matrixA, matrixB, intialGuess, 0, 5, 5);
-    const x = jacobi.solve();
+    const x = jacobi.solve(matrixA,matrixB,intialGuess,['x','y','z'],0,5);
+    console.log(x[0]);
     expect(x[1].getElement(matrixA.getRows(), 0)).toBe(1.039);
     expect(x[1].getElement(matrixA.getRows(), 1)).toBe(1.9375);
     expect(x[1].getElement(matrixA.getRows(), 2)).toBe(3.0703);

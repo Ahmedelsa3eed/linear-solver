@@ -16,8 +16,8 @@ describe("GaussJordan", () => {
     ]);
     const matrixB = Matrix.fromArray([[11], [3], [16]]);
     const gaussJordan = new GaussJordan();
-    gaussJordan.solve(matrixA, matrixB);
-
+    let x=gaussJordan.solve(matrixA, matrixB);
+    console.log(x[0])
     expect(matrixA.getElement(0, 0)).toEqual(1);
     expect(matrixA.getElement(0, 1)).toEqual(0);
     expect(matrixA.getElement(0, 2)).toEqual(0);

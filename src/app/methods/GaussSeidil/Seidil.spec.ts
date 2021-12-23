@@ -19,7 +19,7 @@ describe("Seidil", () => {
     const intialGuess = [1, 1, 1];
 
     const seidel = new Seidil(matrixA, matrixB, intialGuess, 0.1, 1000, 4); //take eps only
-    const x = seidel.solve();
+    const x = seidel.solve(matrixA, matrixB, intialGuess,['a','b','c'], 0.1, 1000);
     expect(x[1].getElement(matrixA.getRows(), 0)).toBe(0.9992);
     expect(x[1].getElement(matrixA.getRows(), 1)).toBe(2);
     expect(x[1].getElement(matrixA.getRows(), 2)).toBe(3);
@@ -35,7 +35,8 @@ describe("Seidil", () => {
     const intialGuess = [1, 0, 1];
 
     const seidel = new Seidil(matrixA, matrixB, intialGuess, 0, 6, 4); //when eps=0, we will ignore it
-    const x = seidel.solve();
+    const x = seidel.solve(matrixA, matrixB, intialGuess,['a','b','c'], 0, 6);
+    console.log(x[0]);
     expect(x[1].getElement(matrixA.getRows(), 0)).toBe(0.9475);
     expect(x[1].getElement(matrixA.getRows(), 1)).toBe(3.028);
     expect(x[1].getElement(matrixA.getRows(), 2)).toBe(3.997);
@@ -51,7 +52,7 @@ describe("Seidil", () => {
     const intialGuess = [0, 0, 0];
 
     const seidel = new Seidil(matrixA, matrixB, intialGuess, 0, 5, 4); //take # iterations only
-    const x = seidel.solve();
+    const x = seidel.solve(matrixA, matrixB, intialGuess,['a','b','c'], 0, 5);
     expect(x[1].getElement(matrixA.getRows(), 0)).toBe(0.1864);
     expect(x[1].getElement(matrixA.getRows(), 1)).toBe(0.3312);
     expect(x[1].getElement(matrixA.getRows(), 2)).toBe(-0.4226);

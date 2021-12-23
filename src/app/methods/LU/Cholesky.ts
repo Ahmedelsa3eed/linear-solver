@@ -4,7 +4,7 @@ import { LU } from "./LU";
 import { Big } from "src/app/shared/Big";
 
 export class Cholesky extends LU {
-  override Decompose(X: Matrix): [Matrix, Matrix, Step[], string] {
+  override solve(X: Matrix,b:Matrix,vars:string[]): [Step[],Matrix, string] {
     let stat = "FACTORISABLE";
     let n: number = X.getRows();
     let U: Matrix = new Matrix(X.getRows(), X.getCols());
@@ -13,7 +13,7 @@ export class Cholesky extends LU {
     let sum: number;
     if (!X.isPosDef()) {
       stat = "NOT_POSITIVE_DEF";
-      return [L, U, steps, stat];
+      return [steps,L, stat];
     }
     steps.push(new Step("Applying LU-Cholesky decomposition", null));
     steps.push(new Step("Constructing L :", null));
@@ -27,7 +27,7 @@ export class Cholesky extends LU {
             .add(
               new Big
               (L.getElement(col, k), this.precision)
-              .mul(L.getElement(row, k))
+              .mul(L.getElement(row, k)).getValue()
             )
             .getValue()
         }
@@ -39,7 +39,7 @@ export class Cholesky extends LU {
             .sqrt()
             .getValue();
           L.setElement(row, col, newValue);
-          steps.push(new Step("L[" + row + "][" + col + "] = √(" + X.getElement(col, col) + " - " + sum + ")" + " = " + L.getElement(row, col), null));
+          steps.push(new Step("L_{" + row + "" + col + "} = √(" + X.getElement(col, col) + " - " + sum + ")" + " = " + L.getElement(row, col), L));
         } else {
           const newValue =
             new Big
@@ -48,13 +48,14 @@ export class Cholesky extends LU {
             .div(L.getElement(col, col))
             .getValue();
           L.setElement(row, col, newValue);
-          steps.push(new Step("L[" + row + "][" + col + "] = (" + X.getElement(row, col) + " - " + sum + ")/" + L.getElement(col, col) + " = " + L.getElement(row, col), null));
+          steps.push(new Step("L_{" + row + "" + col + "} = "+" \\frac{"+X.getElement(row, col) + " - " + sum +"}{"+L.getElement(col, col)+"}"+" = " + L.getElement(row, col), L));
         }
       }
     }
     steps.push(new Step("L :", L));
     U = L.transpose();
-    steps.push(new Step("Constructing U where U is the transpose of L", U));
-    return [L, U, steps, stat];
+    steps.push(new Step("\nConstructing U where U is the transpose of L", U));
+    let sol=this.Solve(L,U,b,vars,steps);
+    return [steps,sol, stat];
   }
 }

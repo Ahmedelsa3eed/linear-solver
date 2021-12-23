@@ -1,6 +1,9 @@
 export class Big {
     private precision: number;
     private value: number;
+    static Precise(value:number,precision:number):number{
+        return +value.toPrecision(precision);
+    }
     constructor(value: number, precision: number) {
         this.precision = precision;
         this.value = +value.toPrecision(precision);

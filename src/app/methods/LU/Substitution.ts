@@ -45,7 +45,7 @@ export class Substitution {
   static backward(
     matrix: Matrix,
     b: Matrix,
-    variable: string,
+    variables: string[],
     precision: number
   ): [Step[], Matrix] {
     let steps: Step[] = [];
@@ -73,10 +73,10 @@ export class Substitution {
         .div(matrix.getElement(row, row))
         .getValue();
       solution.setElement(row, 0, newValue);
-      steps.push(new Step(variable + (row + 1) + " = " + solution.getElement(row, 0), solution));
+      steps.push(new Step(variables[row] + " = " + solution.getElement(row, 0), solution));
     }
 
-    steps.push(new Step(variable + " : ", solution));
+    steps.push(new Step("Solution : ", solution));
     let result = <Matrix>steps[steps.length - 1].getMatrix();
     return [steps, result];
   }

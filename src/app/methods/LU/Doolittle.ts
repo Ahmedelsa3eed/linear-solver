@@ -14,7 +14,7 @@ export class Doolittle extends LU {
     return indexOfMaxPivot;
   }
 
-  public override Decompose(U: Matrix): [Matrix, Matrix, Step[], string, any[]] {
+  public override solve(U: Matrix,b:Matrix,vars:string[]): [Step[],Matrix, string] {
     console.log("matrix to be factorized\n", U.print());
     let stat = "FACTORISABLE";
     let o = [];
@@ -24,13 +24,13 @@ export class Doolittle extends LU {
 
     if (U.getCols() != U.getRows()) {
       stat = "NOT_FACTORISABLE";
-      return [L, U, steps, stat, o];
+      return [steps,L, stat];
     }
     for (let i = 0; i < U.getRows() - 1; i++) {
       let fix = Doolittle.partialPivotIn(U, i);
       if (fix == 0) {
         stat = "NOT_FACTORISABLE";
-        return [L, U, steps, stat, o];
+        return [steps,L, stat];
       }
       if (fix != i) {
         let temp: number = o[fix];
@@ -38,8 +38,8 @@ export class Doolittle extends LU {
         o[i] = temp;
         U.exchangeRows(i, fix);
         L.exchangeRows(i, fix);
-        steps.push(new Step(`Apply Partial Pivoting Exchange Row ${fix} with Row ${i}`, U.clone()));
-        console.log(`Apply Partial Pivoting Exchange Row ${fix + 1} with Row ${i + 1}\n`, U.print());
+        steps.push(new Step(`Apply Partial Pivoting Exchange Row ${fix+1} with Row ${i+1}`, U));
+        console.log(`Apply Partial Pivoting Exchange Row ${fix + 1} with Row ${i + 1}\n`, U);
       }
 
       for (let row = i + 1; row < U.getRows(); row++) {
@@ -60,7 +60,7 @@ export class Doolittle extends LU {
             .getValue();
           U.setElement(row, col, newValue);
         }
-        steps.push(new Step(`${scalar}R${i + 1} + R${row + 1} ==> R${row + 1}`, U.clone()));
+        steps.push(new Step(`${scalar}R${i + 1} + R${row + 1} ==> R${row + 1}`, U));
         console.log(`${scalar}R${i + 1} + R${row + 1} ==> R${row + 1}`);
         // console.log(-1 * scalar , " + ", L.getElement(row, i))
         const newValue =
@@ -70,18 +70,18 @@ export class Doolittle extends LU {
           .add(L.getElement(row, i))
           .getValue();
         L.setElement(row, i, newValue);
-        steps.push(new Step(`Now Element L${row}${i} Become ${newValue}`, L.clone()));
-
+        steps.push(new Step(`Now Element L${row}${i} Become ${newValue}`, L));
+        
         // console.log("lower ", i, " : \n", L.print());
         // console.log("upper ", i, "  : \n", U.print());
       }
     }
     for (let i = 0; i < U.getRows(); i++) L.setElement(i, i, 1); // Initialize the main diagonal
-
-    console.log("lower  : \n", L.print());
-    console.log("upper  : \n", U.print());
-
-    return [L, U, steps, stat, o];
+    steps.push(new Step("\nL :",L));
+    steps.push(new Step("\nU :",U));
+    let sol=this.Solve(L,U,b,vars,steps,o)
+    
+    return [steps,sol, stat];
   }
 
   // static solve(matrix: Matrix, a: Matrix): [Step[], Matrix] {
