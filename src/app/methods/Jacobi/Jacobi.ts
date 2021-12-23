@@ -102,7 +102,11 @@ export class Jacobi {
 
       if (this.imax > 1000) break;
     }
-    return [steps, Matrix.fromArray(x), Status.UNIQUE];
+    let res=new Matrix(this.n,this.n)
+    for (let index = 0; index < guess.length; index++) {
+       res.setElement(index,0,guess[index]);
+    }
+    return [steps,res, Status.UNIQUE];
   }
 
   private showTheFormula(): Step[] {

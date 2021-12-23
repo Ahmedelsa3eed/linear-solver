@@ -55,7 +55,7 @@ export class Seidil {
     const guess = this.intialGuess;
     for (let k = 0; k < this.imax; k++) {
       x[k] = [];
-      steps.push(new Step("$\\newline$Iteration #" + (k + 1),null));
+      steps.push(new Step("$\\newline \\newline $Iteration #" + (k + 1),null));
       for (let i = 0; i < this.n; i++) {
         x[k][i] = this.B.getElement(i, 0);
         var Sum="( ";
@@ -102,8 +102,11 @@ export class Seidil {
 
       if (this.imax > 1000) break;
     }
-
-    return [steps, Matrix.fromArray(x), Status.UNIQUE];
+    let res=new Matrix(this.n,this.n)
+    for (let index = 0; index < guess.length; index++) {
+       res.setElement(index,0,guess[index]);
+    }
+    return [steps,res, Status.UNIQUE];
   }
 
   private showTheFormula(): Step[] {
