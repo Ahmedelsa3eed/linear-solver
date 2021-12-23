@@ -258,10 +258,6 @@ export class AppComponent {
     this.katexExplaination = this.solution?.[0].map(x => x.getMsg()).join("$\\newline$") || ""
     this.solvability = this.solution?.[2]
     if (
-      this.solvability !== Status.ERROR &&
-      this.solvability !== Status.NO_SOLUTION &&
-      this.solvability !== Status.NOT_FACTORISABLE &&
-      this.solvability !== Status.NOT_POSITIVE_DEF &&
       this.solution?.[1] !== undefined
     ) {
       this.stringSolution = "";
