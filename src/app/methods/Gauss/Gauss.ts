@@ -35,33 +35,34 @@ export class Gauss {
   }
 
   protected gauss(matrix: Matrix, b: Matrix): [Step[], Matrix, Status] {
-    let x: Array<Step> = new Array();
+    let x:Step[]=[]
     let stat: Status = Status.UNIQUE;
     console.log(matrix.print());
     for (let i = 0; i < matrix.getCols() - 1; i++) {
       matrix = this.partialPivoting(i, i, matrix, b);
       console.log(matrix.print() + b.print());
       for (let j = i + 1; j < matrix.getCols(); j++) {
-        const factor =
+        var factor =
           new Big
           (matrix.getElement(j, i), this.precision)
           .div(matrix.getElement(i, i))
           .getValue();
         console.log("factor = " + factor);
         for (let k = i; k < matrix.getCols(); k++) {
-          const newValue =
+          var newValuee =
+          new Big
+          (matrix.getElement(j, k), this.precision)
+          .sub(
             new Big
-            (matrix.getElement(j, k), this.precision)
-            .sub(
-              new Big
-              (factor, this.precision)
-              .mul(matrix.getElement(i, k))
+            (factor, this.precision)
+            .mul(matrix.getElement(i, k))
             )
             .getValue();
-          matrix.setElement(j, k, newValue);
-        }
-        x.push(new Step("$R_" + (j + 1) +" \\Leftarrow "  + -factor + " * " + "R_" + (i + 1) + " + " + "R_" + (j + 1) + "$", matrix));
-        const newValue =
+            
+            matrix.setElement(j, k, newValuee);
+          }
+          x.push(new Step("$R_{" + (j + 1) +"} \\Leftarrow "  + (-1*factor) + " * " + "R_{" + (i + 1) + "} + " + "R_{" + (j + 1) + "}$", matrix));
+        var newValue =
           new Big
           (b.getElement(j, 0), this.precision)
           .sub(
@@ -80,15 +81,18 @@ export class Gauss {
     if (matrix.getElement(matrix.getRows() - 1, matrix.getCols() - 1) == 0 && b.getElement(b.getRows() - 1, 0) != 0) {
       stat = Status.NO_SOLUTION;
     }
-    return [x, b.clone(), stat];
+    return [x, matrix, stat];
   }
 
   solve(matrix: Matrix, b: Matrix): [Step[], Matrix, Status] {
     let step: Step[] = [];
     let stat = Status.UNIQUE;
     const x = new Matrix(matrix.getRows(), 1);
-    matrix = this.gauss(matrix, b)[1];
-    step.push(new Step("Applying Gauss elimination :",null))
+    let res = this.gauss(matrix, b);
+    matrix =res[1]
+    step=res[0];
+    stat=res[2];
+    step.push(new Step("Applying Backward Substitution :",null))
     for (let i = matrix.getRows() - 1; i >= 0; i--) {
       let sum = 0;
       
@@ -108,15 +112,15 @@ export class Gauss {
             .mul(x.getElement(j, 0))
           )
           .getValue();
-          step.push(new Step("$R_" + (j + 1) + " \\Leftarrow " + -factor + " * " + "R_" + (i + 1) + " + " + "R_" + (j + 1) + "$", matrix));
-      }
-      const newValue =
+        }
+        const newValue =
         new Big
         (b.getElement(i, 0), this.precision)
         .sub(sum)
         .div(matrix.getElement(i, i))
         .getValue();
-      x.setElement(i, 0, newValue);
+        x.setElement(i, 0, newValue);
+        // step.push(new Step("$R_" + (j + 1) + " \\Leftarrow " + -factor + " * " + "R_" + (i + 1) + " + " + "R_" + (j + 1) + "$", matrix));
 
     }
     step.push(new Step("The Solution using Gauss : ", x));
