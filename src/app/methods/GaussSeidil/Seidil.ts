@@ -79,7 +79,7 @@ export class Seidil {
           }
         }
         Sum+=" )";
-        steps.push(new Step("$"+vars[i]+"_"+k+" = "+'\\frac{'+Big.Precise(this.B.getElement(i, 0),this.precision)+" - "+Sum+'}{'+Big.Precise(this.A.getElement(i, i),this.precision)+'}$',null))
+        steps.push(new Step("$"+vars[i]+"_"+k+" = "+'\\frac{'+Big.Precise(this.B.getElement(i, 0),this.precision)+" - "+Sum+'}{'+Big.Precise(this.A.getElement(i, i),this.precision)+'}'+" = "+x[k][i]+"$",null))
         x[k][i] =
           new Big
           (x[k][i], this.precision)

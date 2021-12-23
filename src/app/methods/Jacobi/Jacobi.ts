@@ -90,7 +90,7 @@ export class Jacobi {
           .div(x[k][i])
           .abs()
           .getValue();
-        steps.push(new Step("$"+vars[i]+"_"+k+" = "+'\\frac{'+Big.Precise(this.B.getElement(i,0),this.precision)+" - "+Sum+'}{'+Big.Precise(this.A.getElement(i, i),this.precision)+'}$',null))
+        steps.push(new Step("$"+vars[i]+"_"+k+" = "+'\\frac{'+Big.Precise(this.B.getElement(i,0),this.precision)+" - "+Sum+'}{'+Big.Precise(this.A.getElement(i, i),this.precision)+'}'+" = "+x[k][i]+"$",null))
       }
 
       for (let i = 0; i < this.n; i++) guess[i] = x[k][i];
