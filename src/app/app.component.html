@@ -16,7 +16,13 @@
             [(ngModel)]="equations"
           ></textarea>
         </div>
-        <button class="btn primary">Next</button>
+        <button
+          class="btn primary"
+          [attr.disabled]="!validateEquations() ? true : null"
+          (click)="parseEquations()"
+        >
+          Next
+        </button>
       </div>
       <div class="step" [class.hidden]="stepID !== 'METHOD'">
         <div class="stepHeader">
@@ -55,6 +61,22 @@
             step="1"
             [(ngModel)]="precision"
           />
+        </div>
+        <button class="btn primary">Next</button>
+      </div>
+      <div class="step" [class.hidden]="stepID !== 'LU_PARAM'">
+        <div class="stepHeader">
+          <span>Step 4</span>
+          <span>Adjust paramaters of the method</span>
+        </div>
+        <div class="stepForm">
+          <textarea
+            class="form-control"
+            placeholder="Equations separated by line break"
+            rows="5"
+            wrap="off"
+            [(ngModel)]="luVariant"
+          ></textarea>
         </div>
         <button class="btn primary">Next</button>
       </div>

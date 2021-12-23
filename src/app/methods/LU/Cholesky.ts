@@ -39,7 +39,7 @@ export class Cholesky extends LU {
             .sqrt()
             .getValue();
           L.setElement(row, col, newValue);
-          steps.push(new Step("L_{" + row + "" + col + "} = √(" + X.getElement(col, col) + " - " + sum + ")" + " = " + L.getElement(row, col), L));
+          steps.push(new Step("$L_{" + row + "" + col + "} = √(" + X.getElement(col, col) + " - " + sum + ")" + " = " + L.getElement(row, col) + "$", L));
         } else {
           const newValue =
             new Big
@@ -48,7 +48,7 @@ export class Cholesky extends LU {
             .div(L.getElement(col, col))
             .getValue();
           L.setElement(row, col, newValue);
-          steps.push(new Step("L_{" + row + "" + col + "} = "+" \\frac{"+X.getElement(row, col) + " - " + sum +"}{"+L.getElement(col, col)+"}"+" = " + L.getElement(row, col), L));
+          steps.push(new Step("$L_{" + row + "" + col + "} = "+" \\frac{"+X.getElement(row, col) + " - " + sum +"}{"+L.getElement(col, col)+"}"+" = " + L.getElement(row, col) + "$", L));
         }
       }
     }

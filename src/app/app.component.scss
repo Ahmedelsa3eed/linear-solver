@@ -132,16 +132,15 @@ textarea.form-control {
   border: 2px solid rgb(255, 154, 68);
   padding: 10px 30px;
   cursor: pointer;
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
   &.primary {
     background-color: rgb(255, 154, 68);
     background-image: linear-gradient(-20deg, rgb(252, 96, 118) 0%, rgb(255, 154, 68) 100%);
     background-size: 100%;
     color: #FFFFFF;
-  }
-  &.secondary {
-    border-color: rgb(255, 154, 68);;
-    background-color: #FFFFFF;
-    color: rgb(255, 154, 68);
   }
 }
 

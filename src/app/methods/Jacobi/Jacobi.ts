@@ -89,7 +89,7 @@ export class Jacobi {
           .div(x[k][i])
           .abs()
           .getValue();
-        steps.push(new Step(vars[i]+"_"+k+" = "+'\\frac{'+Big.Precise(x[k][i],this.precision)+" - "+Sum+'}{'+Big.Precise(x[k][i],this.precision)+'}',null))
+        steps.push(new Step("$"+vars[i]+"_"+k+" = "+'\\frac{'+Big.Precise(x[k][i],this.precision)+" - "+Sum+'}{'+Big.Precise(x[k][i],this.precision)+'}$',null))
       }
 
       for (let i = 0; i < this.n; i++) guess[i] = x[k][i];

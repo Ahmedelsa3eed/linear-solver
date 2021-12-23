@@ -91,7 +91,7 @@ export class Seidil {
           .abs()
           .getValue()
           guess[i] = x[k][i];
-          steps.push(new Step(vars[i]+"_"+k+" = "+'\\frac{'+Big.Precise(x[k][i],this.precision)+" - "+Sum+'}{'+Big.Precise(x[k][i],this.precision)+'}',null))
+          steps.push(new Step("$"+vars[i]+"_"+k+" = "+'\\frac{'+Big.Precise(x[k][i],this.precision)+" - "+Sum+'}{'+Big.Precise(x[k][i],this.precision)+'}$',null))
       }
 
       var max = ea[0];

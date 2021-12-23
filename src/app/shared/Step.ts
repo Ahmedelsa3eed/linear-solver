@@ -1,19 +1,14 @@
 import { Matrix } from './Matrix';
 
 export class Step {
-  msg: string;
-  m: Matrix | null;
+  private msg: string;
   constructor(msg: string, m: Matrix | null) {
     this.msg = msg;
-    this.m = null;
     if (m) {
-      this.m = m.clone();
+      this.msg += "$$" + m.printLatex() + "$$";
     }
   }
   getMsg() {
     return this.msg;
-  }
-  getMatrix() {
-    return this.m;
   }
 }

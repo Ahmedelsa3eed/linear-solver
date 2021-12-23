@@ -59,7 +59,7 @@ export class Gauss {
             .getValue();
           matrix.setElement(j, k, newValue);
         }
-        x.push(new Step("R_" + (j + 1) +" \\Leftarrow "  + -factor + " * " + "R_" + (i + 1) + " + " + "R_" + (j + 1), matrix));
+        x.push(new Step("$R_" + (j + 1) +" \\Leftarrow "  + -factor + " * " + "R_" + (i + 1) + " + " + "R_" + (j + 1) + "$", matrix));
         const newValue =
           new Big
           (b.getElement(j, 0), this.precision)
@@ -107,7 +107,7 @@ export class Gauss {
             .mul(x.getElement(j, 0))
           )
           .getValue();
-          step.push(new Step("R_" + (j + 1) + " \\Leftarrow " + -factor + " * " + "R_" + (i + 1) + " + " + "R_" + (j + 1), matrix));
+          step.push(new Step("$R_" + (j + 1) + " \\Leftarrow " + -factor + " * " + "R_" + (i + 1) + " + " + "R_" + (j + 1) + "$", matrix));
       }
       const newValue =
         new Big

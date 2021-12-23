@@ -41,7 +41,7 @@ export class Crout extends LU {
           .sub(sum)
           .getValue();
         L.setElement(row, col, newValue);
-        steps.push(new Step("L_{" + col + "" + row + "} = " + X.getElement(row, col) + " - " + sum + " = " + L.getElement(row, col), L));
+        steps.push(new Step("$L_{" + col + "" + row + "} = " + X.getElement(row, col) + " - " + sum + " = " + L.getElement(row, col) + "$", L));
       }
       for (row = col; row < n; row++) {
         if (L.getElement(col, col) == 0) {
@@ -67,7 +67,7 @@ export class Crout extends LU {
           .div(L.getElement(col, col))
           .getValue();
         U.setElement(col, row, newValue);
-        steps.push(new Step("L_{" + col + "" + row + "} = "+" \\frac{"+X.getElement(col, row) + " - " + sum +"}{"+L.getElement(col, col)+"}"+" = " + L.getElement(col,row), L));
+        steps.push(new Step("$L_{" + col + "" + row + "} = "+" \\frac{"+X.getElement(col, row) + " - " + sum +"}{"+L.getElement(col, col)+"}"+" = " + L.getElement(col,row) + "$", L));
       }
     }
     steps.push(new Step("L :", L));
