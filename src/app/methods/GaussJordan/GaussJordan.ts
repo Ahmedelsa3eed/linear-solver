@@ -74,7 +74,7 @@ export class GaussJordan extends Gauss {
     x.push(new Step("Solution:", b));
     console.log(matrix.print() + b.print());
     console.log(x);
-    return [x, matrix, stat];
+    return [x, b.clone(), stat];
   }
 
   override solve(matrix: Matrix, b: Matrix): [Step[], Matrix, Status] {

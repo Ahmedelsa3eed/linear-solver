@@ -80,7 +80,7 @@ export class Gauss {
     if (matrix.getElement(matrix.getRows() - 1, matrix.getCols() - 1) == 0 && b.getElement(b.getRows() - 1, 0) != 0) {
       stat = Status.NO_SOLUTION;
     }
-    return [x, matrix, stat];
+    return [x, b.clone(), stat];
   }
 
   solve(matrix: Matrix, b: Matrix): [Step[], Matrix, Status] {
