@@ -38,10 +38,10 @@ export class Gauss {
     let x:Step[]=[]
     let stat: Status = Status.UNIQUE;
     console.log(matrix.print());
-    for (let i = 0; i < matrix.getCols() - 1; i++) {
+    for (let i = 0; i < matrix.getRows(); i++) {
       matrix = this.partialPivoting(i, i, matrix, b);
       console.log(matrix.print() + b.print());
-      for (let j = i + 1; j < matrix.getCols(); j++) {
+      for (let j = i + 1; j < matrix.getRows(); j++) {
         var factor =
           new Big
           (matrix.getElement(j, i), this.precision)
