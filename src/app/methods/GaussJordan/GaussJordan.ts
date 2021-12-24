@@ -37,8 +37,8 @@ export class GaussJordan extends Gauss {
     console.log(matrix.print());
     console.log(b.print());
     for (let i = matrix.getRows() - 1; i >= 0; i--) {
-      this.dividByPivotElement(i, i, matrix, b);
       x.push(new Step("$R_" + (i + 1) + " \\Leftarrow " + "1 /" + matrix.getElement(i, i) + " * " + "R_" + (i + 1) + "$", matrix,b));
+      this.dividByPivotElement(i, i, matrix, b);
       console.log(matrix.print());
       console.log(b.print());
       for (let j = i - 1; j >= 0; j--) {
