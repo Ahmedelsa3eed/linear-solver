@@ -4,7 +4,7 @@ import { Status } from 'src/app/shared/Status.model'
 
 export class Seacant {
 
-    SFs!: number    //default significant figures is the system default
+    SFs!: number    
 
     constructor(SFs: number = 6) { this.SFs = SFs }
 
@@ -13,9 +13,9 @@ export class Seacant {
         let f = parse(fx)
         let steps: string[] = []
         let xi0 = x0
-        let xi1 =  x1           //initial guess
-        let x: number = 0       //store the result of each iteration
-        let ea: number[] = []   //to check the error for each iteraion
+        let xi1 =  x1           
+        let x: number = 0       
+        let ea: number[] = []   
 
         for (let i = 0; i < imax; i++) {
 
@@ -26,7 +26,6 @@ export class Seacant {
             var den = new Big ( evaluate(f.toString(), { x: xi0 }) , this.SFs ).sub(  new Big ( evaluate(f.toString(), { x: xi1 }) , this.SFs) ).getValue();
             
             console.log("xi-1 = " + xi0 + "\n xi = " +xi1 + "\n" )
-            //x(i+1) = xi - (f(xi) / f`(xi))
 
             x = new Big(xi0, this.SFs).sub(
 
