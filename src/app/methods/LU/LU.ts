@@ -20,7 +20,7 @@ export class LU {
   ): Matrix {
     let b = a;
     if (o) {
-      b = new Matrix(3, 1);
+      b = new Matrix(o.length, 1);
       for (let i = 0; i < o.length; i++) {
         b.setElement(i, 0, a.getElement(o[i], 0));
       }
