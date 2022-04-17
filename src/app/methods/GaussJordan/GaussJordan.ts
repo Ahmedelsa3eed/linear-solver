@@ -20,30 +20,59 @@ export class GaussJordan extends Gauss {
         .getValue()
       matrix.setElement(Row, i, newValue);
     }
-    b.setElement(Row, 0, b.getElement(Row, 0) / pivot);
+    const newValue =
+      new Big
+      (b.getElement(Row, 0), this.precision)
+      .div(pivot)
+      .getValue()
+    b.setElement(Row, 0, newValue);
   }
 
-  private gaussJordan(matrix: Matrix, b: Matrix): [Step[], Matrix, Status] {
-    console.log(matrix.print());
-    let GaussRes = this.gauss(matrix, b);
-    let x = GaussRes[0];
-    let stat = GaussRes[2];
+  private gaussJordan(matrix: Matrix, b: Matrix): [Step[], Status] {
+    const gaussRes = this.gauss(matrix, b)
+    let steps = gaussRes[0];
+    let stat = gaussRes[1];
     if (stat === Status.INFINITE || stat === Status.NO_SOLUTION) {
-      return [x, matrix, stat];
+      return [steps, stat];
     }
-    console.log(matrix.print());
-    console.log(b.print());
+    steps.push(new Step("$\\blacksquare$ Applying backward elimination:", null))
     for (let i = matrix.getRows() - 1; i >= 0; i--) {
+      steps.push(new Step(`$\\bigstar$ Divide row ${i + 1} by ${matrix.getElement(i, i)}:`, null))
+      steps.push(new Step(
+        (
+          "$$R_" +
+          (i + 1) +
+          " \\Leftarrow " +
+          "1 /" +
+          matrix.getElement(i, i) +
+          " \\times " +
+          "R_" +
+          (i + 1) +
+          "$$" +
+          "$$" +
+          matrix.printAugmented(b) +
+          "$$"
+        ),
+        null
+      ));
       this.dividByPivotElement(i, i, matrix, b);
-      x.push(new Step("$R_" + (i + 1) + " \\Leftarrow " + "1 /" + matrix.getElement(i, i) + " * " + "R_" + (i + 1) + "$", matrix));
-      console.log(matrix.print());
-      console.log(b.print());
       for (let j = i - 1; j >= 0; j--) {
+        const factorNumerator = matrix.getElement(j, i);
+        const factorDenominator = matrix.getElement(i, i);
         const factor =
           new Big
-          (matrix.getElement(j, i), this.precision)
-          .div(matrix.getElement(i, i))
+          (factorNumerator, this.precision)
+          .div(factorDenominator)
           .getValue();
+          steps.push(new Step(
+            (
+              `$\\bigstar$ Divide row ${i + 1} by ${factorDenominator} ` +
+              `and multiply it by ${factorNumerator}, ` + 
+              `subtract the result from row ${j + 1} then ` +
+              `substitute new row for row ${j + 1}:`
+            ),
+            null
+          ));
         for (let k = matrix.getCols() - 1; k > j; k--) {
           const newValue =
             new Big
@@ -66,18 +95,37 @@ export class GaussJordan extends Gauss {
           )
           .getValue();
         b.setElement(j, 0, newValue);
-        x.push(new Step("$R_" + (j + 1) + " \\Leftarrow " + -factor + " * " + "R_" + (i + 1) + " + " + "R_" + (j + 1) + "$", matrix));
-        console.log(matrix.print());
-        console.log(b.print());
+        steps.push(new Step(
+          (
+            "$$R_" +
+            (j + 1) +
+            " \\Leftarrow " +
+            (-factor) +
+            " \\times " +
+            "R_" +
+            (i + 1) +
+            " + " +
+            "R_" +
+            (j + 1) +
+            "$$" +
+            "$$" +
+            matrix.printAugmented(b) +
+            "$$"
+          ),
+          null
+        ));
       }
     }
-    x.push(new Step("Solution:", b));
-    console.log(matrix.print() + b.print());
-    console.log(x);
-    return [x, b.clone(), stat];
+    return [steps, stat];
   }
 
   override solve(matrix: Matrix, b: Matrix): [Step[], Matrix, Status] {
-    return this.gaussJordan(matrix, b);
+    const gaussRes = this.gaussJordan(matrix, b);
+    let steps = gaussRes[0];
+    let stat = gaussRes[1];
+    if (stat === Status.UNIQUE) {
+      steps.push(new Step("$\\blacksquare$ The Solution is:$$" + b.printLatex() + "$$", null));
+    }
+    return [steps, b, stat];
   }
 }

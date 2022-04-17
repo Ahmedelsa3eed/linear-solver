@@ -10,34 +10,35 @@ export class Substitution {
     precision: number
   ): [Step[], Matrix] {
     let steps: Step[] = [];
-
     let solution: Matrix = new Matrix(matrix.getRows(), 1);
-
-    steps.push(new Step("Applying Forward Substitution", matrix.clone()));
+    let stepStringBuilder = "";
+    steps.push(new Step("$\\blacksquare$ Applying forward substitution:", null));
     for (let row = 0; row < matrix.getRows(); row++) {
-      let sum = 0;
+      let sum = b.getElement(row, 0);
+      stepStringBuilder = `$$${variable}_${row + 1} = \\frac{${b.getElement(row, 0)}`;
       for (let col = 0; col < row; col++) {
         sum =
           new Big
           (sum, precision)
-          .add(
+          .sub(
             new Big
             (matrix.getElement(row, col), precision)
             .mul(solution.getElement(col, 0))
           )
           .getValue();
+        stepStringBuilder += ` - ${matrix.getElement(row, col)} \\times ${solution.getElement(col, 0)}`;
       }
       const newValue =
         new Big
-        (b.getElement(row, 0), precision)
-        .sub(sum)
+        (sum, precision)
         .div(matrix.getElement(row, row))
         .getValue();
       solution.setElement(row, 0, newValue);
-      steps.push(new Step(variable + (row + 1) + " = " + solution.getElement(row, 0), solution.clone()));
+      stepStringBuilder += `}{${matrix.getElement(row, row)}} = ${newValue}$$`;
+      steps.push(new Step(stepStringBuilder, null));
     }
-
-    steps.push(new Step(variable + " : ", solution));
+    steps.push(new Step(`$\\bigstar$ Finally, matrix $y$ has been calculated too:`, null));
+    steps.push(new Step("$$" + variable + " = " + solution.printLatex() + "$$", null));
     return [steps, solution];
   }
 
@@ -48,34 +49,34 @@ export class Substitution {
     precision: number
   ): [Step[], Matrix] {
     let steps: Step[] = [];
-
     let solution: Matrix = new Matrix(matrix.getRows(), 1);
-    steps.push(new Step("Applying Backward Substitution", matrix));
-
-    for (let row = matrix.getRows() - 1; row > -1; row--) {
-      let sum = 0;
+    let stepStringBuilder = "";
+    steps.push(new Step("$\\blacksquare$ Applying backward substitution:", null));
+    for (let row = matrix.getRows() - 1; row >= 0; row--) {
+      let sum = b.getElement(row, 0);
+      stepStringBuilder = `$$${variables[row]}_${row + 1} = \\frac{${b.getElement(row, 0)}`;
       for (let col = matrix.getCols() - 1; col > row; col--) {
         sum =
           new Big
           (sum, precision)
-          .add(
+          .sub(
             new Big
             (matrix.getElement(row, col), precision)
             .mul(solution.getElement(col, 0))
           )
           .getValue();
+        stepStringBuilder += ` - ${matrix.getElement(row, col)} \\times ${solution.getElement(col, 0)}`;
       }
       const newValue =
         new Big
-        (b.getElement(row, 0), precision)
-        .sub(sum)
+        (sum, precision)
         .div(matrix.getElement(row, row))
         .getValue();
+      stepStringBuilder += `}{${matrix.getElement(row, row)}} = ${newValue}$$`;
       solution.setElement(row, 0, newValue);
-      steps.push(new Step(variables[row] + " = " + solution.getElement(row, 0), solution));
+      steps.push(new Step(stepStringBuilder, null));
     }
-
-    steps.push(new Step("Solution : ", solution));
+    steps.push(new Step("$\\blacksquare$ The Solution is:$$" + solution.printLatex() + "$$", null));
     return [steps, solution];
   }
 }

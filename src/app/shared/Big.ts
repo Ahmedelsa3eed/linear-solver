@@ -4,9 +4,11 @@ export class Big {
     static Precise(value: number, precision: number): number {
         return +value.toPrecision(precision);
     }
-    constructor(value: number, precision: number) {
+    constructor(value: number | Big, precision: number) {
         this.precision = precision;
-        this.value = +value.toPrecision(precision);
+        this.value = value instanceof Big ?
+            +value.getValue().toPrecision(this.precision) :
+            +value.toPrecision(precision);
     }
     getPrecision(): number {
         return this.precision;

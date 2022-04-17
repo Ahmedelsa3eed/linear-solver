@@ -1,0 +1,179 @@
+<div class="app-shell">
+    <div class="app-container">
+      <div [class.collapsed]="stepID === 'SOLUTION'"></div>
+      <div>
+        <div class="step" [class.hidden]="stepID !== 'EQUATIONS'">
+          <div class="stepHeader">
+            <span>Step 1</span>
+            <span>Enter equation needed to be solved</span>
+          </div>
+          <div class="stepForm">
+            <input
+              placeholder="e.g. x^2 + 2x + 1"
+              class="form-control"
+              [(ngModel)]="equation"
+            />
+          </div>
+          <button
+            class="btn primary"
+            [attr.disabled]="!validateEquation() ? true : null"
+            (click)="submitEquation()"
+          >
+            Next
+          </button>
+        </div>
+        <div class="step" [class.hidden]="stepID !== 'METHOD'">
+          <div class="stepHeader">
+            <span>Step 2</span>
+            <span>Choose one of the solving methods</span>
+          </div>
+          <div class="cardSelectContainer">
+            <button (click)="submitMethod(MethodIDEnum.BISECTION)">
+              Bisection
+            </button>
+            <button (click)="submitMethod(MethodIDEnum.FALSE_POSITIVE)">
+              False-Positive
+            </button>
+            <button (click)="submitMethod(MethodIDEnum.FIXED_POINT)">
+              Fixed Point
+            </button>
+            <button (click)="submitMethod(MethodIDEnum.NEWTON_RAPHSON)">
+              Newton Raphson
+            </button>
+            <button (click)="submitMethod(MethodIDEnum.SECANT)">
+              Secant Method
+            </button>
+          </div>
+        </div>
+        <div class="step" [class.hidden]="stepID !== 'PRECISION'">
+          <div class="stepHeader">
+            <span>Step 3</span>
+            <span>Tune the precision of calculations</span>
+          </div>
+          <div class="precisionAdjuster">
+            <span>{{ precision }}</span>
+            <input
+              type="range"
+              min="1"
+              max="100"
+              step="1"
+              [(ngModel)]="precision"
+            />
+          </div>
+          <button class="btn primary" (click)="submitPrecision()">
+            Next
+          </button>
+        </div>
+        <div
+          class="step"
+          [class.hidden]="stepID !== 'METHOD_PARAM'"
+        >
+          <div class="stepHeader">
+            <span>Step 4</span>
+            <span>Adjust paramaters of the method</span>
+          </div>
+          <div class="stepForm">
+            <label>
+              Initial guess {{ (
+                method === MethodIDEnum.BISECTION ||
+                method === MethodIDEnum.FALSE_POSITIVE ||
+                method === MethodIDEnum.SECANT
+              ) ? 1 : '' }}
+            </label>
+            <input
+              type="number"
+              class="form-control"
+              placeholder="Separated by comma"
+              [(ngModel)]="initialGuess1"
+            />
+            <label
+              *ngIf="
+                method === MethodIDEnum.BISECTION ||
+                method === MethodIDEnum.FALSE_POSITIVE ||
+                method === MethodIDEnum.SECANT
+              "
+            >
+              Initial guess 2
+            </label>
+            <input
+              type="number"
+              class="form-control"
+              placeholder="Separated by comma"
+              *ngIf="
+                method === MethodIDEnum.BISECTION ||
+                method === MethodIDEnum.FALSE_POSITIVE ||
+                method === MethodIDEnum.SECANT
+              "
+              [(ngModel)]="initialGuess2"
+            />
+            <label>Stopping Condition</label>
+            <select
+              class="form-control"
+              [(ngModel)]="stoppingCondition"
+            >
+              <option value="NUMBER_ITERATIONS">Number of Iterations</option>
+              <option value="ABSOLUTE_RELATIVE_ERROR">Absolute {{ (
+                method === MethodIDEnum.BISECTION ||
+                method === MethodIDEnum.FALSE_POSITIVE
+              ) ? '' : 'Relative' }} Error</option>
+            </select>
+            <label *ngIf="stoppingCondition === 'NUMBER_ITERATIONS'">
+              Number of Iterations
+            </label>
+            <input
+              type="number"
+              class="form-control"
+              placeholder="Separated by comma"
+              min="1"
+              *ngIf="stoppingCondition === 'NUMBER_ITERATIONS'"
+              [(ngModel)]="noIterations"
+            />
+            <label *ngIf="stoppingCondition === 'ABSOLUTE_RELATIVE_ERROR'">
+              Absolute {{ (
+                method === MethodIDEnum.BISECTION ||
+                method === MethodIDEnum.FALSE_POSITIVE
+              ) ? '' : 'Relative' }} Error
+            </label>
+            <input
+              type="number"
+              class="form-control"
+              min="0"
+              *ngIf="stoppingCondition === 'ABSOLUTE_RELATIVE_ERROR'"
+              [(ngModel)]="absRelErr"
+            />
+          </div>
+          <button
+            class="btn primary"
+            [attr.disabled]="!validateIterativeParams() ? true : null"
+            (click)="showSolution()"
+          >
+            Solve!
+          </button>
+        </div>
+        <div class="step" [class.hidden]="stepID !== 'SOLUTION'">
+          <div class="stepHeader">
+            <span>Solution</span>
+            <span>Here is the solution of equations</span>
+          </div>
+          <p>
+            <b>Time:</b> {{ this.calculationTime * 1000 }} μs
+          </p>
+          <p *ngIf="solvability">
+            <b>Solvability:</b> {{ this.solvability }}
+          </p>
+          <p *ngIf="stringSolution">
+            <b>Solution:</b> x = {{ this.solution?.[1] }}
+          </p>
+          <div id="graph"></div>
+          <p>
+            <b>Steps of Solving:</b>
+          </p>
+          <ng-katex-paragraph
+            *ngIf="katexExplaination"
+            [paragraph]="katexExplaination"
+          ></ng-katex-paragraph>
+        </div>
+      </div>
+    </div>
+  </div>
+  

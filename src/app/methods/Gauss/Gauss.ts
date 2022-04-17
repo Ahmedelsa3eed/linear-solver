@@ -34,20 +34,26 @@ export class Gauss {
     return matrix;
   }
 
-  protected gauss(matrix: Matrix, b: Matrix): [Step[], Matrix, Status] {
-    let x: Array<Step> = new Array();
+  protected gauss(matrix: Matrix, b: Matrix): [Step[], Status] {
+    const steps: Array<Step> = new Array();
     let stat: Status = Status.UNIQUE;
-    console.log(matrix.print());
-    for (let i = 0; i < matrix.getCols() - 1; i++) {
-      matrix = this.partialPivoting(i, i, matrix, b);
-      console.log(matrix.print() + b.print());
-      for (let j = i + 1; j < matrix.getCols(); j++) {
+    steps.push(new Step(`$$Ax = b$$`, null))
+    steps.push(new Step(`$$${matrix.printLatex()}x = ${b.printLatex()}$$`, null))
+    steps.push(new Step("$\\blacksquare$ Construct the augmented matrix:", null));
+    steps.push(new Step("$$" + matrix.printAugmented(b) + "$$", null));
+    steps.push(new Step("$\\blacksquare$ Applying forward elimination:", null))
+    for (let i = 0; i < matrix.getRows() - 1; i++) {
+      this.partialPivoting(i, i, matrix, b);
+      steps.push(new Step(`$\\bigstar$ Apply partial pivoting if applicable:`, null));
+      steps.push(new Step("$$" + matrix.printLatex() + "$$", null));
+      for (let j = i + 1; j < matrix.getRows(); j++) {
+        const factorNumerator = matrix.getElement(j, i);
+        const factorDenominator = matrix.getElement(i, i);
         const factor =
           new Big
-          (matrix.getElement(j, i), this.precision)
-          .div(matrix.getElement(i, i))
+          (factorNumerator, this.precision)
+          .div(factorDenominator)
           .getValue();
-        console.log("factor = " + factor);
         for (let k = i; k < matrix.getCols(); k++) {
           const newValue =
             new Big
@@ -60,7 +66,34 @@ export class Gauss {
             .getValue();
           matrix.setElement(j, k, newValue);
         }
-        x.push(new Step("$R_" + (j + 1) +" \\Leftarrow "  + -factor + " * " + "R_" + (i + 1) + " + " + "R_" + (j + 1) + "$", matrix));
+        steps.push(new Step(
+          (
+            `$\\bigstar$ Divide row ${i + 1} by ${factorDenominator} ` +
+            `and multiply it by ${factorNumerator}, ` + 
+            `subtract the result from row ${j + 1} then ` +
+            `substitute new row for row ${j + 1}:`
+          ),
+          null
+        ));
+        steps.push(new Step(
+          (
+            "$$R_" +
+            (j + 1) +
+            " \\Leftarrow " + 
+            (-factor) +
+            " \\times " +
+            "R_" +
+            (i + 1) +
+            " + " +
+            "R_" +
+            (j + 1) +
+            "$$" +
+            "$$" +
+            matrix.printAugmented(b) +
+            "$$"
+          ),
+          null
+        ));
         const newValue =
           new Big
           (b.getElement(j, 0), this.precision)
@@ -71,55 +104,67 @@ export class Gauss {
           )
           .getValue();
         b.setElement(j, 0, newValue);
-        console.log(matrix.print() + b.print());
       }
     }
     if (matrix.getElement(matrix.getRows() - 1, matrix.getCols() - 1) == 0 && b.getElement(b.getRows() - 1, 0) == 0) {
+      steps.push(new Step("$\\because$ Number of pivots of matrix A is equal to that of the augmented matrix but less than number of unknowns.", null));
+      steps.push(new Step("$\\therefore$ System of equations has infinite number of solutions.", null));
       stat = Status.INFINITE;
-    }
-    if (matrix.getElement(matrix.getRows() - 1, matrix.getCols() - 1) == 0 && b.getElement(b.getRows() - 1, 0) != 0) {
+    } else if (matrix.getElement(matrix.getRows() - 1, matrix.getCols() - 1) == 0 && b.getElement(b.getRows() - 1, 0) != 0) {
+      steps.push(new Step("$\\because$ Number of pivots of A matrix is different from number of pivots of the augmented matrix matrix.", null));
+      steps.push(new Step("$\\therefore$ System of equations is inconsistent and has no solution.", null));
       stat = Status.NO_SOLUTION;
+    } else {
+      steps.push(new Step("$\\because$ Number of pivots of matrix A is equal to number of unknowns.", null));
+      steps.push(new Step("$\\therefore$ System of equations has a unique solution", null));
     }
-    return [x, b.clone(), stat];
+    return [steps, stat];
   }
 
   solve(matrix: Matrix, b: Matrix): [Step[], Matrix, Status] {
-    let step: Step[] = [];
-    let stat = Status.UNIQUE;
-    const x = new Matrix(matrix.getRows(), 1);
-    matrix = this.gauss(matrix, b)[1];
-    step.push(new Step("Applying Gauss elimination :",null))
-    for (let i = matrix.getRows() - 1; i >= 0; i--) {
-      let sum = 0;
-      
-      for (let j = i + 1; j < matrix.getRows(); j++) {
-        const factor =
-        new Big
-        (matrix.getElement(j, i), this.precision)
-        .div(matrix.getElement(i, i))
-        .getValue();
-
-        sum =
-          new Big
-          (sum, this.precision)
-          .add(
+    const x: Matrix = new Matrix(matrix.getRows(), 1);
+    const gaussRes = this.gauss(matrix, b)
+    const steps: Step[] = gaussRes[0];
+    const stat: Status = gaussRes[1];
+    let stepStringBuilder = "";
+    if (stat == Status.UNIQUE) {
+      steps.push(new Step("$\\blacksquare$ Applying back substitution:", null))
+      for (let i = b.getRows() - 1; i >= 0; i--) {
+        steps.push(new Step(`$\\bigstar$ Solving for $x_${i + 1}$:`, null));
+        stepStringBuilder = "$$";
+        for (let k = i; k < matrix.getCols(); k++) {
+          stepStringBuilder += `${matrix.getElement(i, k)}x_${k + 1}`;
+          if (k != matrix.getCols() - 1) {
+            stepStringBuilder += " + ";
+          }
+        }
+        stepStringBuilder += " = " + b.getElement(i, 0) + "$$";
+        steps.push(new Step(stepStringBuilder, null));
+        let x_i = b.getElement(i, 0);
+        stepStringBuilder = `$$x_${i + 1} = \\frac{${x_i}`;
+        for (let j = matrix.getCols() - 1; j > i; j--) {
+          x_i = 
             new Big
-            (matrix.getElement(i, j), this.precision)
-            .mul(x.getElement(j, 0))
-          )
+            (x_i, this.precision)
+            .sub(
+              new Big
+              (matrix.getElement(i, j), this.precision)
+              .mul(x.getElement(j, 0))
+            )
+            .getValue();
+          stepStringBuilder += ` - ${matrix.getElement(i, j)} \\times ${x.getElement(j, 0)}`;
+        }
+        x_i =
+          new Big
+          (x_i, this.precision)
+          .div(matrix.getElement(i, i))
           .getValue();
-          step.push(new Step("$R_" + (j + 1) + " \\Leftarrow " + -factor + " * " + "R_" + (i + 1) + " + " + "R_" + (j + 1) + "$", matrix));
+        stepStringBuilder += `}{${matrix.getElement(i, i)}} = ${x_i}$$`;
+        x.setElement(i, 0, x_i);
+        steps.push(new Step(stepStringBuilder, null));
       }
-      const newValue =
-        new Big
-        (b.getElement(i, 0), this.precision)
-        .sub(sum)
-        .div(matrix.getElement(i, i))
-        .getValue();
-      x.setElement(i, 0, newValue);
-
+      steps.push(new Step("$\\blacksquare$ The Solution is:$$" + x.printLatex() + "$$", null));
     }
-    step.push(new Step("The Solution using Gauss : ", x));
-    return [step, x, stat];
+    return [steps, x, stat];
   }
 }

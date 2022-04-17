@@ -4,85 +4,76 @@ import { Matrix } from "../../shared/Matrix";
 import { Step } from "../../shared/Step";
 
 export class Jacobi {
-  private A!: Matrix; //the coofeciant matrix
-  private B!: Matrix; //the result matrix
-  private intialGuess!: number[];
-  private es!: number;
-  private imax!: number;
-  private n!: number; //the number of rows (square matrix)
+  private n!: number;
   private precision: number;
 
-  constructor(
-    A?: Matrix,
-    B?: Matrix,
-    intialGuess?: number[],
-    es?: number,
-    imax: number = 1000,
-    precision: number = 6
-  ) {
-    if (A && B && intialGuess) {
-      this.setMatrix(A);
-      this.B = B.clone();
-      this.intialGuess = intialGuess;
-      this.imax = imax;
-    }
-    this.es = 0;
-    if (es) this.es = es;
+  constructor(precision: number = 6) {//default SFs is 6
     this.precision = precision;
   }
 
-  private setMatrix(M: Matrix) {
-    if (M.getRows() != M.getCols()) {
-      throw new Error("The matrix isn't square");
-    }
-    this.A = M.clone();
-    this.n = M.getRows();
-  }
-
-  solve(A:Matrix,B:Matrix,initialGuess:number[],vars:string[],es?:number,imax?:number): [Step[], Matrix, Status] {
-    let steps = this.showTheFormula();
-    try{this.setMatrix(A);}
-    catch(e:any){
-      return([steps,A,Status.ERROR]);
-    }
-    this.B=B.clone();
-    this.intialGuess=initialGuess;
-    if(es){this.es=es;}
-    if(imax){this.imax=imax;}
-    let x: number[][] = [];
+  solve(
+    A: Matrix,
+    B: Matrix,
+    initialGuess: number[],
+    vars: string[],
+    es: number = 0.00001,       //default relative error is 0.00001
+    imax: number = 50           //default iterations is 50
+  ): [Step[], Matrix, Status] {
+    let steps = this.showTheFormula(vars);
+    this.n = A.getRows()
+    const x: number[][] = [];
     const ea = [];
-    let guess = this.intialGuess;
-    for (let k = 0; k < this.imax; k++) {
+    const guess = initialGuess;
+    let stepStringBuilder = "";
+    const Aclone = A.clone();
+    const Bclone = B.clone();
+    try {
+      this.rearrange(A, B)
+    } catch (e: any) {
+      steps.push(new Step(`$$Ax = b$$`, null))
+      steps.push(new Step(`$$${Aclone.printLatex()}x = ${Bclone.printLatex()}$$`, null))
+      steps.push(new Step("$\\blacksquare$ The matrix has zeros in diagonal even after partial pivoting.", null))
+      steps.push(new Step("$\\blacksquare$ The matrix isn't solvable by Jacobi iterative method.", null))
+      return ([steps, A, Status.ZERO_DIAGONAL]);
+    }
+    steps.push(new Step(`$$Ax = b$$`, null))
+    steps.push(new Step(`$$${A.printLatex()}x = ${B.printLatex()}$$`, null))
+    steps.push(new Step("$\\blacksquare$ Applying Jacobi iterative method:", null))
+    for (let k = 0; k < imax; k++) {
       x[k] = [];
-      steps.push(new Step("$\\newline$Iteration #" + (k), null));
+      steps.push(new Step("$\\bigstar$ Iteration #" + (k + 1) + ":", null));
       for (let i = 0; i < this.n; i++) {
-        x[k][i] = this.B.getElement(i, 0);
-        var Sum="( ";
+        x[k][i] = B.getElement(i, 0);
+        stepStringBuilder = `$$${vars[i]}^${k + 1} = \\frac{${x[k][i]}`;
         for (let j = 0; j < this.n; j++) {
+          if (j == 0) {
+            stepStringBuilder += " - (";
+          }
           if (i != j) {
             x[k][i] =
               new Big
               (x[k][i], this.precision)
               .sub(
                 new Big
-                (this.A.getElement(i, j), this.precision)
+                (A.getElement(i, j), this.precision)
                 .mul(guess[j])
               )
               .getValue();
-
-              Sum+=Big.Precise(this.A.getElement(i, j),this.precision)+" * "+Big.Precise(guess[j],this.precision);
- 
-              if(!(j==this.n-1||(j==i-1&&i==this.n-1))){
-                Sum+=" + ";
-              }
+            stepStringBuilder += `${A.getElement(i, j)} \\times ${guess[j]}`;
+          }
+          if (j == this.n - 1) {
+            stepStringBuilder += ")";
+          } else {
+            stepStringBuilder += " + ";
           }
         }
-        Sum+=" )";
         x[k][i] =
           new Big
           (x[k][i], this.precision)
-          .div(this.A.getElement(i, i))
+          .div(A.getElement(i, i))
           .getValue();
+        stepStringBuilder += `}{${A.getElement(i, i)}} = ${x[k][i]}$$`;
+        steps.push(new Step(stepStringBuilder, null));
         ea[i] =
           new Big
           (x[k][i], this.precision)
@@ -90,37 +81,55 @@ export class Jacobi {
           .div(x[k][i])
           .abs()
           .getValue();
-        steps.push(new Step("$"+vars[i]+"_"+k+" = "+'\\frac{'+Big.Precise(this.B.getElement(i,0),this.precision)+" - "+Sum+'}{'+Big.Precise(this.A.getElement(i, i),this.precision)+'}'+" = "+x[k][i]+"$",null))
+        steps.push(new Step(`$$|\\epsilon_a|_${vars[i]} = |\\frac{${vars[i]}^${k + 1} - ${vars[i]}^${k}}{${vars[i]}^${k + 1}}| = |\\frac{${x[k][i]} - ${guess[i]}}{${x[k][i]}}| = ${ea[i]}$$`, null));
       }
 
       for (let i = 0; i < this.n; i++) guess[i] = x[k][i];
 
-      var max = ea[0];
+      let max = ea[0];
       for (let i = 1; i < ea.length; i++) if (ea[i] > max) max = ea[i];
 
-      if (this.es != 0 && max < this.es) break;
-
-      if (this.imax > 1000) break;
+      if (max === 0 || max < es || k >= 50) break;
     }
-    let res=new Matrix(this.n,this.n)
+    const res = new Matrix(this.n,this.n)
     for (let index = 0; index < guess.length; index++) {
-       res.setElement(index,0,guess[index]);
+       res.setElement(index, 0, guess[index]);
     }
     return [steps,res, Status.UNIQUE];
   }
 
-  private showTheFormula(): Step[] {
+  private showTheFormula(vars: string[]): Step[] {
     const equations: Step[] = [];
     for (let i = 0; i < this.n; i++) {
-      let st = "";
-      st += "x" + (i + 1) + " = (";
-      st += this.B.getElement(i, 0);
+      let stepStringBuilder = `$$${vars[i]}^{new} = \\frac{b_${vars[i]}`;
       for (let j = 0; j < this.n; j++) {
-        if (i != j) st += "-" + this.A.getElement(i, j) + "x" + (j + 1);
+        if (i != j) stepStringBuilder += ` - a_{${i + 1}${j + 1}} \\times ${vars[j]}^{old}`;
       }
-      st += ") / " + this.A.getElement(i, i);
-      equations[i] = new Step(st, null);
+      stepStringBuilder += `}{a_{${i + 1}${i + 1}}}$$`;
+      equations[i] = new Step(stepStringBuilder, null);
     }
     return equations;
+  }
+
+  /**
+   * the equations are rearranged so that
+   * in the ith equation the coefficient of xi is nonzero
+   */
+    private rearrange(A: Matrix, B: Matrix): void {
+    for (let i = 0; i < this.n; i++) {
+      if (A.getElement(i, i) == 0) {
+        let flag = false
+        for (let j = 0; j < this.n; j++) {
+          if (i != j && A.getElement(j, i) != 0 && A.getElement(i, j) != 0){
+            flag = true
+            A.exchangeRows(i, j)
+            B.exchangeRows(i, j)
+          }
+        }
+        if (flag == false) {
+          throw new Error("The matrix isn't solvable by jacobi");
+        }
+      }
+    }
   }
 }

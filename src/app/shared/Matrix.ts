@@ -39,22 +39,20 @@ export class Matrix {
     getData(): number[][] {
         return this.data;
     }
-    isPosDef(){
-        if(!this.isSym()){
-            return false;
-        }
-        for(var i=0;i<this.rows;i++){
-            if(this.getElement(i,i)<0){
+    isPosDef(): boolean {
+        if(!this.isSym()) return false;
+        for(let i = 0; i < this.rows; i++) {
+            if(this.getElement(i,i) < 0) {
                 return false;
             }
         }
         return true;
     }
-    isSym(){
-        if(this.rows!=this.cols){return false;}
-        for(var i=0;i<this.rows;i++){
-            for(var j=0;j<i;j++){
-                if(this.getElement(i,j)!=this.getElement(j,i)){
+    isSym(): boolean {
+        if(this.rows != this.cols) return false;
+        for(let i = 0; i < this.rows; i++) {
+            for(let j = 0; j < i; j++) {
+                if(this.getElement(i, j) != this.getElement(j,i)) {
                     return false;
                 }
             }
@@ -151,8 +149,20 @@ export class Matrix {
         result += "\\end{pmatrix}";
         return result;
     }
-    transpose():Matrix{
-        let result= new Matrix(this.cols,this.rows);
+    printAugmented(b: Matrix): string {
+        let result = "\\begin{pmatrix}";
+        for (let i = 0; i < this.rows; i++) {
+            for (let j = 0; j < this.cols; j++) {
+                const separator = j === this.cols - 1 ? "" : " & ";
+                result += this.data[i][j] + separator;
+            }
+            result += " & " + b.data[i][0] + "\\\\";
+        }
+        result += "\\end{pmatrix}";
+        return result;
+    }
+    transpose(): Matrix{
+        let result = new Matrix(this.cols,this.rows);
             for (let i = 0; i < this.rows; i++) {
                 for (let j = 0; j < this.cols; j++) {
                     result.data[j][i] = this.data[i][j];

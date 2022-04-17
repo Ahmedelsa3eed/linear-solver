@@ -5,14 +5,22 @@ import { KatexModule } from 'ng-katex';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { LinearComponent } from './linear.component';
+import { RouterModule } from '@angular/router';
+import { NonLinearComponent } from './nonlinear.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    LinearComponent,
+    NonLinearComponent
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule,
+    RouterModule.forRoot([
+      {path: 'linear', component: LinearComponent},
+      {path: 'non-linear', component: NonLinearComponent},
+    ]),
     FormsModule,
     KatexModule
   ],
