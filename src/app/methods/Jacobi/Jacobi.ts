@@ -88,6 +88,11 @@ export class Jacobi {
 
       let max = ea[0];
       for (let i = 1; i < ea.length; i++) if (ea[i] > max) max = ea[i];
+      let res=new Matrix(this.n,1)
+        for (let index = 0; index < guess.length; index++) {
+          res.setElement(index,0,guess[index]);
+        }
+        steps.push(new Step("$e = "+max*100+" \\%$",res));
 
       if (max === 0 || max < es || k >= 50) break;
     }

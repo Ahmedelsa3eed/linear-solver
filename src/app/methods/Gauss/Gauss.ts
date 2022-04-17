@@ -3,6 +3,7 @@ import { Status } from "src/app/shared/Status.model";
 import { Matrix } from "../../shared/Matrix";
 import { Step } from "../../shared/Step";
 
+
 export class Gauss {
   protected precision: number;
 
@@ -64,6 +65,7 @@ export class Gauss {
               .mul(matrix.getElement(i, k))
             )
             .getValue();
+            console.log(matrix.getElement(j,k)-factor*matrix.getElement(i,k)+"this is the new val"+newValue)
           matrix.setElement(j, k, newValue);
         }
         steps.push(new Step(
@@ -95,12 +97,12 @@ export class Gauss {
           null
         ));
         const newValue =
+        new Big
+        (b.getElement(j, 0), this.precision)
+        .sub(
           new Big
-          (b.getElement(j, 0), this.precision)
-          .sub(
-            new Big
-            (factor, this.precision)
-            .mul(b.getElement(i, 0))
+          (factor, this.precision)
+          .mul(b.getElement(i, 0))
           )
           .getValue();
         b.setElement(j, 0, newValue);

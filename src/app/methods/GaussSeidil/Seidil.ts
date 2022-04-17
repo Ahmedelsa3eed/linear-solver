@@ -2,6 +2,7 @@ import { Big } from "src/app/shared/Big";
 import { Status } from "src/app/shared/Status.model";
 import { Matrix } from "../../shared/Matrix";
 import { Step } from "../../shared/Step";
+import { Jacobi } from "../Jacobi/Jacobi";
 
 export class Seidil {
   private n!: number;
